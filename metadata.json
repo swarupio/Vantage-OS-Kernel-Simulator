@@ -1,0 +1,6 @@
+{
+  "name": "Mini OS Kernel Simulator",
+  "description": "A fully browser-based, interactive educational tool that simulates core OS subsystems: Process Management, CPU Scheduling, Memory Allocation, and File System.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
