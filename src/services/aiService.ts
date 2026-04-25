@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
+import { GoogleGenAI, Type, FunctionDeclaration, ThinkingLevel } from "@google/genai";
 
 let aiInstance: GoogleGenAI | null = null;
 
@@ -94,7 +94,8 @@ export const aiService = {
         ],
         config: {
           systemInstruction,
-          temperature: 0.7,
+          temperature: 0.1,
+          thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
           tools: [{
             functionDeclarations: [
               stepFunction,
