@@ -8,7 +8,7 @@ import { Activity, Play, ChevronRight, RotateCcw, Workflow } from 'lucide-react'
 import { useSimulationStore } from '../store/simulationStore';
 
 export const KernelCommandCenter = ({ isAuto, setIsAuto }: { isAuto: boolean, setIsAuto: (v: boolean) => void }) => {
-  const { step, reset, loadDemo, algorithm, setAlgorithm } = useSimulationStore();
+  const { step, reset, loadDemo, algorithm, setAlgorithm, memoryStrategy, setMemoryStrategy, speed, setSpeed } = useSimulationStore();
   
   return (
     <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 space-y-4">
@@ -18,16 +18,34 @@ export const KernelCommandCenter = ({ isAuto, setIsAuto }: { isAuto: boolean, se
       </div>
 
       <div className="space-y-3">
-        <div className="grid grid-cols-3 gap-1 p-1 bg-slate-950 rounded-lg">
-          {(['RR', 'PRIORITY', 'SJF'] as const).map(algo => (
-            <button 
-              key={algo}
-              onClick={() => setAlgorithm(algo)}
-              className={`py-1.5 rounded text-[9px] font-black transition-all ${algorithm === algo ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-600 hover:text-slate-300'}`}
-            >
-              {algo}
-            </button>
-          ))}
+        <div className="space-y-1">
+          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest ml-1">CPU Scheduler</span>
+          <div className="grid grid-cols-3 gap-1 p-1 bg-slate-950 rounded-lg">
+            {(['RR', 'PRIORITY', 'SJF'] as const).map(algo => (
+              <button 
+                key={algo}
+                onClick={() => setAlgorithm(algo)}
+                className={`py-1.5 rounded text-[9px] font-black transition-all ${algorithm === algo ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-600 hover:text-slate-300'}`}
+              >
+                {algo}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest ml-1">Memory Allocation</span>
+          <div className="grid grid-cols-2 gap-1 p-1 bg-slate-950 rounded-lg">
+            {(['FIRST_FIT', 'BEST_FIT'] as const).map(strat => (
+              <button 
+                key={strat}
+                onClick={() => setMemoryStrategy(strat)}
+                className={`py-1.5 rounded text-[9px] font-black transition-all ${memoryStrategy === strat ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-600 hover:text-slate-300'}`}
+              >
+                {strat.replace('_', ' ')}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-2">

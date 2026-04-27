@@ -33,7 +33,7 @@ import { AICopilot } from './components/AICopilot';
 
 export default function App() {
   const { 
-    step, processes, logs, clearLogs
+    step, processes, logs, clearLogs, speed
   } = useSimulationStore();
   const [isAuto, setIsAuto] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -88,10 +88,10 @@ export default function App() {
     if (isAuto) {
       interval = setInterval(() => {
         step();
-      }, 800);
+      }, 800 / speed);
     }
     return () => clearInterval(interval);
-  }, [isAuto, step]);
+  }, [isAuto, step, speed]);
 
   return (
     <Tooltip.Provider delayDuration={400}>

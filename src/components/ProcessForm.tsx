@@ -75,12 +75,21 @@ export const ProcessForm = () => {
                </div>
              </Tooltip.Trigger>
              <Tooltip.Portal>
-               <Tooltip.Content className="bg-zinc-900 border border-zinc-800 p-2 text-[9px] text-zinc-300 rounded shadow-xl" side="right">
+               <Tooltip.Content className="bg-zinc-900 border border-zinc-800 p-2 text-[9px] text-zinc-300 rounded shadow-xl" side="bottom">
                  Total CPU execution time needed
                  <Tooltip.Arrow className="fill-zinc-800" />
                </Tooltip.Content>
              </Tooltip.Portal>
            </Tooltip.Root>
+        </div>
+        <div className="col-span-2 space-y-1">
+          <label className="text-[8px] font-black text-zinc-600 uppercase mb-1 block">Memory Required (MB)</label>
+          <input 
+            type="number" min="1" max="256" step="16"
+            value={formData.memRequired}
+            onChange={e => setFormData({...formData, memRequired: parseInt(e.target.value)})}
+            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1.5 text-[10px] text-amber-500 outline-none focus:border-amber-500 font-mono font-bold"
+          />
         </div>
       </div>
       

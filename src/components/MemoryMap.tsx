@@ -21,6 +21,9 @@ export const MemoryMap = () => {
                <Database size={14} className="text-amber-500" /> Physical Page Map (MMU)
             </span>
             <div className="flex items-center gap-2">
+              <span className="text-[8px] font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                Frag: {stats.fragmentation}%
+              </span>
               <span className="text-[8px] font-black text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
                 Faults: {stats.pageFaults}
               </span>

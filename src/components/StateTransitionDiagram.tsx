@@ -19,11 +19,12 @@ export const StateTransitionDiagram = () => {
     { id: 'NEW', icon: <PlusCircle size={10} />, label: 'NEW', color: 'text-zinc-500' },
     { id: 'READY', icon: <Clock size={10} />, label: 'READY', color: 'text-amber-500' },
     { id: 'RUNNING', icon: <Cpu size={10} />, label: 'RUNNING', color: 'text-indigo-500' },
+    { id: 'WAITING', icon: <Clock size={10} />, label: 'WAIT', color: 'text-rose-500' },
     { id: 'TERMINATED', icon: <CheckCircle2 size={10} />, label: 'EXIT', color: 'text-emerald-500' },
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-2 p-2 bg-black/40 border border-zinc-800/50 rounded-2xl">
+    <div className="grid grid-cols-5 gap-2 p-2 bg-black/40 border border-zinc-800/50 rounded-2xl">
       {states.map((state) => {
         const stageProcesses = getProcessesInState(state.id);
         const hasProcesses = stageProcesses.length > 0;

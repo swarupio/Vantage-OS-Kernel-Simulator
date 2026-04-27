@@ -19,6 +19,7 @@ export interface PCB {
   startTime?: number; // first dispatch time
   endTime?: number; // termination time
   waitingTime: number; // accumulated time in READY state
+  ioWaitTimer?: number; // remaining virtual ms in WAITING state
 }
 
 export interface MemoryPartition {

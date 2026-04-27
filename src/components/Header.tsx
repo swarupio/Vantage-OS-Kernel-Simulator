@@ -11,7 +11,13 @@ import { getPidTextColor, getPidBorderColor } from '../lib/utils';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 export const Header = ({ isAuto, setIsAuto, showGuide, setShowGuide }: { isAuto: boolean, setIsAuto: (v: boolean) => void, showGuide: boolean, setShowGuide: (v: boolean) => void }) => {
-  const { clock, runningPid, algorithm, setAlgorithm, quantum, setQuantum, step, reset, loadDemo } = useSimulationStore();
+  const { clock, runningPid, algorithm, setAlgorithm, quantum, setQuantum, step, reset, loadDemo, speed, setSpeed } = useSimulationStore();
+  
+  const cycleSpeed = () => {
+    const speeds = [1, 2, 4];
+    const nextIdx = (speeds.indexOf(speed as any) + 1) % speeds.length;
+    setSpeed(speeds[nextIdx]);
+  };
   
   return (
     <header className="h-12 bg-[#0c0c0e] border-b border-zinc-800/80 px-4 flex items-center justify-between shadow-lg sticky top-0 z-[100] backdrop-blur-md">
@@ -65,6 +71,23 @@ export const Header = ({ isAuto, setIsAuto, showGuide, setShowGuide }: { isAuto:
         <div className="h-6 w-px bg-zinc-800/50" />
 
         <div className="flex items-center gap-1.5">
+           <Tooltip.Root>
+             <Tooltip.Trigger asChild>
+               <button 
+                 onClick={cycleSpeed}
+                 className="flex items-center justify-center min-w-[36px] h-7 bg-zinc-900 border border-zinc-800 hover:border-indigo-500 text-indigo-400 rounded-lg text-[10px] font-black transition-all shadow-inner"
+               >
+                 {speed}x
+               </button>
+             </Tooltip.Trigger>
+             <Tooltip.Portal>
+               <Tooltip.Content className="bg-zinc-900 text-white text-[10px] px-3 py-2 rounded-lg border border-zinc-800 shadow-2xl z-[200]" sideOffset={5}>
+                 Cycle Simulation Speed (1x, 2x, 4x)
+                 <Tooltip.Arrow className="fill-zinc-800" />
+               </Tooltip.Content>
+             </Tooltip.Portal>
+           </Tooltip.Root>
+
            <Tooltip.Root>
              <Tooltip.Trigger asChild>
                <button 

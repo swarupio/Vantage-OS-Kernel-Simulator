@@ -9,7 +9,7 @@ import { FileText, FilePlus, Trash2, ArrowRight,Terminal, Database, Share2, Rota
 import { useSimulationStore } from '../store/simulationStore';
 
 export const FileSystemPanel = () => {
-  const { fileSystem, createFile, writeFile, deleteFile } = useSimulationStore();
+  const { fileSystem, createFile, writeFile, deleteFile, runningPid, triggerIO } = useSimulationStore();
   const directory = fileSystem.getDirectory();
   const bitmap = fileSystem.getBlockBitmap();
   const [newFile, setNewFile] = useState('');
@@ -20,7 +20,8 @@ export const FileSystemPanel = () => {
 
   const handleCreate = () => {
     if (newFile) {
-      createFile(newFile, 'SC-01');
+      createFile(newFile, runningPid || 'SYSTEM');
+      if (runningPid) triggerIO(runningPid);
       setNewFile('');
     }
   };
@@ -28,6 +29,7 @@ export const FileSystemPanel = () => {
   const handleSave = () => {
     if (editingFile !== null) {
       writeFile(editingFile, editContent);
+      if (runningPid) triggerIO(runningPid);
       setEditingFile(null);
       setEditContent('');
     }
