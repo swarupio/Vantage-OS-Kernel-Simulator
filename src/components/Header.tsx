@@ -80,10 +80,10 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
 
         <div className="h-6 w-px bg-zinc-800/50" />
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 h-8">
            <Tooltip.Root>
              <Tooltip.Trigger asChild>
-               <div className="flex bg-zinc-900/50 p-0.5 rounded-lg border border-zinc-800/50 gap-0.5 h-8">
+               <div className="flex bg-zinc-900/50 p-0.5 rounded-lg border border-zinc-800/50 gap-0.5 h-full items-stretch">
                  <button 
                    onClick={() => setIsAuto(!isAuto)}
                    className={`flex items-center gap-2 px-3 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${isAuto ? 'bg-rose-600 text-white shadow-lg' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-900/20'}`}
@@ -113,7 +113,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
              <Tooltip.Trigger asChild>
                <button 
                  onClick={() => step()}
-                 className="h-8 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center leading-none text-center"
+                 className="h-full px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center leading-none text-center"
                >
                  Execute Next Clock Cycle
                </button>
@@ -130,7 +130,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
              <Tooltip.Trigger asChild>
                <button 
                  onClick={() => { setIsAuto(false); reset(); }}
-                 className="h-8 px-3 border border-zinc-800 hover:bg-zinc-800 text-zinc-500 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center leading-none text-center"
+                 className="h-full px-3 border border-zinc-800 hover:bg-zinc-800 text-zinc-500 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center leading-none text-center"
                >
                  Clear Cache
                </button>
@@ -147,7 +147,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
              <Tooltip.Trigger asChild>
                <button 
                  onClick={() => loadDemo()}
-                 className="h-8 px-3 text-amber-500 border border-amber-500/20 hover:bg-amber-500/10 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center leading-none text-center"
+                 className="h-full px-3 text-amber-500 border border-amber-500/20 hover:bg-amber-500/10 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center leading-none text-center"
                >
                  Load Demo
                </button>

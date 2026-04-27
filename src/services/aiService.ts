@@ -4,25 +4,27 @@ let aiInstance: GoogleGenAI | null = null;
 
 function getAI() {
   if (!aiInstance) {
-    // In Vite, environment variables are available on import.meta.env
-    // We prioritize VITE_ names which are exposed to the client
-    const metaEnv = (import.meta as any).env || {};
+    // Vite standard for accessing environment variables
+    const env = (import.meta as any).env || {};
     
+    // Check all common variations, prioritizing VITE_ for client-side safety/exposure
     const apiKey = 
-      metaEnv.VITE_GEMINI_API_KEY || 
-      metaEnv.VITE_GEMINI_API_KEY_PROTECTED ||
+      env.VITE_GEMINI_API_KEY || 
+      env.VITE_GEMINI_API_KEY_PROTECTED ||
       process.env.GEMINI_API_KEY || 
       process.env.GEMINIAPIKEY;
 
     if (!apiKey) {
-      const keysAvailable = Object.keys(metaEnv).filter(k => k.startsWith('VITE_'));
-      console.warn("AI Service Debug: No Gemini API Key found.");
-      console.log("Available VITE_ keys:", keysAvailable);
+      console.warn("AI Service Debug: No Gemini API Key found in environment.");
+      console.log("Current Environment:", env);
       
       throw new Error(
-        "Gemini API Key is missing. \n\n" +
-        "LOCAL FIX: Ensure your .env file has 'VITE_GEMINI_API_KEY=your_key' and RESTART your dev server.\n" +
-        "ONLINE FIX: Set GEMINI_API_KEY in the Secrets tab."
+        "Gemini API Key is missing.\n\n" +
+        "IF RUNNING LOCALLY:\n" +
+        "1. Check your .env file for: VITE_GEMINI_API_KEY=your_key\n" +
+        "2. You MUST restart your dev server (Ctrl+C then npm run dev) after editing the file.\n\n" +
+        "IF RUNNING ONLINE:\n" +
+        "Set GEMINI_API_KEY in the Secrets tab."
       );
     }
     aiInstance = new GoogleGenAI({ apiKey });
