@@ -4,9 +4,26 @@ let aiInstance: GoogleGenAI | null = null;
 
 function getAI() {
   if (!aiInstance) {
-    const apiKey = process.env.GEMINIAPIKEY || process.env.GEMINI_API_KEY;
+    // In Vite, environment variables are available on import.meta.env
+    // We prioritize VITE_ names which are exposed to the client
+    const metaEnv = (import.meta as any).env || {};
+    
+    const apiKey = 
+      metaEnv.VITE_GEMINI_API_KEY || 
+      metaEnv.VITE_GEMINI_API_KEY_PROTECTED ||
+      process.env.GEMINI_API_KEY || 
+      process.env.GEMINIAPIKEY;
+
     if (!apiKey) {
-      throw new Error("GEMINIAPIKEY or GEMINI_API_KEY is missing. Please set GEMINIAPIKEY in the Secrets tab.");
+      const keysAvailable = Object.keys(metaEnv).filter(k => k.startsWith('VITE_'));
+      console.warn("AI Service Debug: No Gemini API Key found.");
+      console.log("Available VITE_ keys:", keysAvailable);
+      
+      throw new Error(
+        "Gemini API Key is missing. \n\n" +
+        "LOCAL FIX: Ensure your .env file has 'VITE_GEMINI_API_KEY=your_key' and RESTART your dev server.\n" +
+        "ONLINE FIX: Set GEMINI_API_KEY in the Secrets tab."
+      );
     }
     aiInstance = new GoogleGenAI({ apiKey });
   }
