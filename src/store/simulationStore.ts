@@ -42,15 +42,12 @@ interface SimulationState {
   memoryManager: MemoryManager;
   fileSystem: FileSystem;
 
-  speed: number;
-  
   // Actions
   setup: (config: { totalMemory: number, partitionSize: number, algorithm: SchedulingAlgorithm, strategy: AllocationStrategy, quantum: number, replacementAlgo: ReplacementAlgorithm }) => void;
   setAlgorithm: (algorithm: SchedulingAlgorithm) => void;
   setMemoryStrategy: (strategy: AllocationStrategy) => void;
   setQuantum: (q: number) => void;
   setReplacementAlgorithm: (algo: ReplacementAlgorithm) => void;
-  setSpeed: (speed: number) => void;
   addProcess: (pid: string, name: string, priority: number, burstTime: number, memRequired: number, arrivalTime?: number) => boolean;
   step: () => void;
   reset: () => void;
@@ -90,7 +87,6 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     compactMode: false,
     logs: [],
     ganttLog: [],
-    speed: 1,
 
     CONTEXT_SWITCH_MS: 2,
     IO_WAIT_MS: 10,
@@ -145,8 +141,6 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         logs: [EventLogger.createEntry('SYSTEM', `Switched replacement to ${replacementAlgorithm}`), ...s.logs]
       }));
     },
-
-    setSpeed: (speed) => set({ speed }),
 
     addProcess: (pid, name, priority, burstTime, memRequired, arrivalTime) => {
       const state = get();

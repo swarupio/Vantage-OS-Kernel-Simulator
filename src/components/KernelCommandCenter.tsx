@@ -8,7 +8,7 @@ import { Activity, Play, ChevronRight, RotateCcw, Workflow } from 'lucide-react'
 import { useSimulationStore } from '../store/simulationStore';
 
 export const KernelCommandCenter = ({ isAuto, setIsAuto }: { isAuto: boolean, setIsAuto: (v: boolean) => void }) => {
-  const { step, reset, loadDemo, algorithm, setAlgorithm, memoryStrategy, setMemoryStrategy, speed, setSpeed } = useSimulationStore();
+  const { step, reset, loadDemo, algorithm, setAlgorithm, memoryStrategy, setMemoryStrategy } = useSimulationStore();
   
   return (
     <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 space-y-4">

@@ -33,9 +33,10 @@ import { AICopilot } from './components/AICopilot';
 
 export default function App() {
   const { 
-    step, processes, logs, clearLogs, speed
+    step, processes, logs, clearLogs
   } = useSimulationStore();
   const [isAuto, setIsAuto] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const [showHistory, setShowHistory] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [isTelemetryExpanded, setIsTelemetryExpanded] = useState(false);
@@ -96,7 +97,7 @@ export default function App() {
   return (
     <Tooltip.Provider delayDuration={400}>
       <div className="h-screen w-screen bg-[#0a0a0c] text-zinc-400 font-sans selection:bg-indigo-500/30 overflow-hidden flex flex-col transition-all duration-300">
-        <Header isAuto={isAuto} setIsAuto={setIsAuto} showGuide={showGuide} setShowGuide={setShowGuide} />
+        <Header isAuto={isAuto} setIsAuto={setIsAuto} speed={speed} setSpeed={setSpeed} showGuide={showGuide} setShowGuide={setShowGuide} />
         
         <div className="flex-1 flex overflow-hidden p-0.5 gap-px bg-zinc-800/10 relative">
           {/* Column 1: Input Zone (FixedWidth for reliability) */}
