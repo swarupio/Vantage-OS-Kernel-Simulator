@@ -4,18 +4,26 @@ let aiInstance: GoogleGenAI | null = null;
 
 function getAI() {
   if (!aiInstance) {
-    // Support both Vite format and standard process.env for maximum compatibility
+    // In Vite, environment variables are available on import.meta.env
+    // We prioritize VITE_ names which are exposed to the client
+    const metaEnv = (import.meta as any).env || {};
+    
     const apiKey = 
-      (import.meta as any).env?.VITE_GEMINI_API_KEY || 
+      metaEnv.VITE_GEMINI_API_KEY || 
+      metaEnv.VITE_GEMINI_API_KEY_PROTECTED ||
       process.env.GEMINI_API_KEY || 
       process.env.GEMINIAPIKEY;
 
     if (!apiKey) {
-      console.error("DEBUG: API Key checks failed.");
-      console.log("VITE_GEMINI_API_KEY:", (import.meta as any).env?.VITE_GEMINI_API_KEY);
-      console.log("GEMINI_API_KEY:", process.env.GEMINI_API_KEY);
+      const keysAvailable = Object.keys(metaEnv).filter(k => k.startsWith('VITE_'));
+      console.warn("AI Service Debug: No Gemini API Key found.");
+      console.log("Available VITE_ keys:", keysAvailable);
       
-      throw new Error("Gemini API Key is missing. If running locally, ensure you have VITE_GEMINI_API_KEY in your .env file.");
+      throw new Error(
+        "Gemini API Key is missing. \n\n" +
+        "LOCAL FIX: Ensure your .env file has 'VITE_GEMINI_API_KEY=your_key' and RESTART your dev server.\n" +
+        "ONLINE FIX: Set GEMINI_API_KEY in the Secrets tab."
+      );
     }
     aiInstance = new GoogleGenAI({ apiKey });
   }
