@@ -23,7 +23,7 @@ export const PCBTable = () => {
 
   return (
     <div className="w-full border-collapse">
-       <div className="grid grid-cols-6 bg-black/40 border-b border-zinc-800 py-2 px-3 sticky top-0 z-10">
+       <div className="grid grid-cols-6 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800 py-2 px-3 sticky top-0 z-10">
           {headers.map(h => (
             <Tooltip.Provider key={h.label}>
               <Tooltip.Root>
@@ -59,7 +59,7 @@ export const PCBTable = () => {
               <span className="text-[10px] font-mono font-bold text-zinc-500">{p.burstTime}</span>
               <span className="text-[10px] font-mono font-bold text-zinc-500">{p.arrivalTime}</span>
               <span className="text-[10px] font-mono font-bold text-zinc-500">{p.memRequired}M</span>
-              <div className="flex items-center">
+              <div className="flex items-center gap-2">
                  <span className={`text-[8px] font-black px-1 rounded-sm uppercase tracking-tighter leading-none py-0.5 ${
                    p.state === 'RUNNING' ? 'bg-indigo-600 text-white' :
                    p.state === 'READY' ? 'bg-emerald-900/40 text-emerald-400' :
@@ -68,6 +68,32 @@ export const PCBTable = () => {
                  }`}>
                    {p.state.slice(0, 4)}
                  </span>
+                 <Tooltip.Root>
+                     <Tooltip.Trigger asChild>
+                       <button 
+                         disabled={p.state !== 'RUNNING'}
+                         onClick={() => useSimulationStore.getState().triggerIO(p.pid)}
+                         className={`text-[7px] font-black px-1.5 py-0.5 rounded uppercase leading-none transition-all ${
+                           p.state === 'RUNNING' 
+                           ? 'bg-amber-600 hover:bg-amber-500 text-white cursor-pointer shadow-lg shadow-amber-900/20' 
+                           : 'bg-zinc-800 text-zinc-600 cursor-not-allowed opacity-50'
+                         }`}
+                       >
+                         I/O
+                       </button>
+                     </Tooltip.Trigger>
+                     <Tooltip.Portal>
+                       <Tooltip.Content 
+                         className="bg-zinc-900 text-white text-[9px] px-2 py-1 rounded border border-zinc-800 shadow-xl z-[200] max-w-[120px]" 
+                         sideOffset={5}
+                       >
+                         {p.state === 'RUNNING' 
+                           ? 'Simulate I/O Interrupt (Move to WAITING state)' 
+                           : 'Process must be RUNNING to trigger I/O'}
+                         <Tooltip.Arrow className="fill-zinc-800" />
+                       </Tooltip.Content>
+                     </Tooltip.Portal>
+                   </Tooltip.Root>
               </div>
             </div>
           ))}

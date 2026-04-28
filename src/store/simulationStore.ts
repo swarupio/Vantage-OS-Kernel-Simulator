@@ -51,7 +51,9 @@ interface SimulationState {
   addProcess: (pid: string, name: string, priority: number, burstTime: number, memRequired: number, arrivalTime?: number) => boolean;
   step: () => void;
   reset: () => void;
-  loadDemo: () => void;
+  loadStarvationDemo: () => void;
+  loadWaitingDemo: () => void;
+  loadBalancedDemo: () => void;
   triggerIO: (pid: string) => void;
   
   // Stats
@@ -393,9 +395,10 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       get().memoryManager.configure(get().totalMemory, get().partitionSize, get().memoryStrategy);
     },
 
-    loadDemo: () => {
-      const { reset, addProcess, createFile, writeFile } = get();
+    loadStarvationDemo: () => {
+      const { reset, addProcess, createFile, writeFile, setAlgorithm } = get();
       reset();
+      setAlgorithm('PRIORITY');
       
       const demos = [
         { name: 'Init', priority: 5, burst: 50, mem: 32, arrival: 0 },
@@ -418,7 +421,42 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       createFile('user_config.json', 'P002');
       
       set(s => ({
-        logs: [EventLogger.createEntry('SYSTEM', 'Demo environment (Starvation Case) loaded'), ...s.logs]
+        logs: [EventLogger.createEntry('SYSTEM', 'Demo: Starvation Case loaded'), ...s.logs]
+      }));
+    },
+
+    loadWaitingDemo: () => {
+      const { reset, addProcess, setAlgorithm, setQuantum } = get();
+      reset();
+      setAlgorithm('RR');
+      setQuantum(4);
+      
+      // Processes that will be manually or automatically put into wait states
+      addProcess('P001', 'Database Sync', 4, 300, 64, 0);
+      addProcess('P002', 'Audio Buffer', 2, 150, 32, 0);
+      addProcess('P003', 'User UI', 3, 200, 96, 5);
+      
+      set(s => ({
+        logs: [
+          EventLogger.createEntry('SYSTEM', 'Demo: I/O Waiting Case loaded.'),
+          EventLogger.createEntry('SYSTEM', 'Tip: Use "INTERRUPT I/O" button on running process to test WAITING state.'),
+          ...s.logs
+        ]
+      }));
+    },
+
+    loadBalancedDemo: () => {
+      const { reset, addProcess, setAlgorithm, setQuantum } = get();
+      reset();
+      setAlgorithm('RR');
+      setQuantum(4);
+      
+      addProcess('P001', 'Web Server', 4, 150, 64, 0);
+      addProcess('P002', 'Cache Service', 3, 100, 32, 2);
+      addProcess('P003', 'UI Engine', 5, 200, 128, 5);
+      
+      set(s => ({
+        logs: [EventLogger.createEntry('SYSTEM', 'Demo: Balanced Workload loaded'), ...s.logs]
       }));
     },
 
@@ -433,6 +471,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       if (p.state === 'RUNNING') {
         p.state = 'WAITING';
         p.ioWaitTimer = state.IO_WAIT_MS;
+        processes[pIdx] = p;
         
         set(s => ({
           processes,
