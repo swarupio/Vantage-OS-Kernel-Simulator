@@ -21,6 +21,7 @@ interface SimulationState {
   replacementAlgorithm: ReplacementAlgorithm;
   quantum: number;
   nextContextPid: string | null;
+  ioRate: number; // 0 to 1, probability of I/O interrupt per running cycle
   
   // Simulation State
   clock: number;
@@ -33,6 +34,7 @@ interface SimulationState {
   compactMode: boolean;
   logs: LogEntry[];
   ganttLog: GanttEntry[];
+  isSimulationComplete: boolean;
   
   // Constants
   CONTEXT_SWITCH_MS: number;
@@ -41,12 +43,13 @@ interface SimulationState {
   // Engine Instances (Internal)
   memoryManager: MemoryManager;
   fileSystem: FileSystem;
-
+  
   // Actions
   setup: (config: { totalMemory: number, partitionSize: number, algorithm: SchedulingAlgorithm, strategy: AllocationStrategy, quantum: number, replacementAlgo: ReplacementAlgorithm }) => void;
   setAlgorithm: (algorithm: SchedulingAlgorithm) => void;
   setMemoryStrategy: (strategy: AllocationStrategy) => void;
   setQuantum: (q: number) => void;
+  setIORate: (rate: number) => void;
   setReplacementAlgorithm: (algo: ReplacementAlgorithm) => void;
   addProcess: (pid: string, name: string, priority: number, burstTime: number, memRequired: number, arrivalTime?: number) => boolean;
   step: () => void;
@@ -78,6 +81,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     replacementAlgorithm: 'FIFO',
     quantum: 4,
     nextContextPid: null,
+    ioRate: 0.05, // 5% chance of I/O interrupt per cycle
 
     clock: 0,
     processes: [],
@@ -89,6 +93,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     compactMode: false,
     logs: [],
     ganttLog: [],
+    isSimulationComplete: false,
 
     CONTEXT_SWITCH_MS: 2,
     IO_WAIT_MS: 10,
@@ -109,6 +114,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         isSwitching: false,
         switchRemaining: 0,
         isPageFault: false,
+        isSimulationComplete: false,
         logs: [EventLogger.createEntry('SYSTEM', `Simulation setup: ${config.algorithm}, ${config.strategy}, ${config.replacementAlgo}`)],
         ganttLog: [],
       });
@@ -122,7 +128,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     },
 
     setMemoryStrategy: (memoryStrategy) => {
-      get().memoryManager.configure(get().totalMemory, get().partitionSize, memoryStrategy, get().replacementAlgorithm);
+      get().memoryManager.setStrategy(memoryStrategy);
       set((s) => ({
         memoryStrategy,
         logs: [EventLogger.createEntry('SYSTEM', `Switched memory strategy to ${memoryStrategy}`), ...s.logs]
@@ -134,6 +140,10 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         quantum,
         logs: [EventLogger.createEntry('SYSTEM', `Time Quantum adjusted to ${quantum}ms`), ...s.logs]
       }));
+    },
+
+    setIORate: (ioRate) => {
+      set({ ioRate });
     },
 
     setReplacementAlgorithm: (replacementAlgorithm) => {
@@ -172,7 +182,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
 
     step: () => {
       const state = get();
-      const { algorithm, quantum, clock, readyQueue, runningPid, processes, ganttLog, isSwitching, switchRemaining, CONTEXT_SWITCH_MS, IO_WAIT_MS } = state;
+      const { algorithm, quantum, clock, readyQueue, runningPid, processes, ganttLog, isSwitching, switchRemaining, CONTEXT_SWITCH_MS, IO_WAIT_MS, ioRate, fileSystem } = state;
       
       let nextClock = clock;
       let nextReadyQueue = [...readyQueue];
@@ -189,7 +199,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         if (p.state === 'NEW' && clock >= p.arrivalTime) {
           p.state = 'READY';
           nextReadyQueue.push(p.pid);
-          newLogs.push(EventLogger.createEntry('SCHEDULER', `Process ${p.pid} arrived and moved to READY queue.`, p.pid));
+          newLogs.push(EventLogger.createEntry('SCHEDULER', `Arrival: ${p.pid} moved to READY queue.`, p.pid));
         }
       });
 
@@ -201,7 +211,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
             p.state = 'READY';
             p.ioWaitTimer = 0;
             nextReadyQueue.push(p.pid);
-            newLogs.push(EventLogger.createEntry('SCHEDULER', `I/O Complete: ${p.pid} moved to READY`, p.pid));
+            newLogs.push(EventLogger.createEntry('SCHEDULER', `I/O Complete: ${p.pid} returned to READY state.`, p.pid));
           }
         }
       });
@@ -233,7 +243,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
 
         if (nextSwitchRemaining <= 0) {
           nextIsSwitching = false;
-          newLogs.push(EventLogger.createEntry('SYSTEM', 'Context switch complete. CPU ready.', 'KERNEL'));
+          newLogs.push(EventLogger.createEntry('SYSTEM', 'Kernel context switch finished.', 'KERNEL'));
         } else {
           set({
             clock: nextClock,
@@ -253,6 +263,36 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       if (nextRunningPid && !nextIsSwitching) {
         const pIdx = nextProcesses.findIndex(p => p.pid === nextRunningPid);
         const p = nextProcesses[pIdx];
+        
+        // 2a. Check for internal I/O interrupt (random basis for simulation)
+        if (Math.random() < ioRate && p.remainingTime > 5) {
+          p.state = 'WAITING';
+          p.ioWaitTimer = IO_WAIT_MS;
+          nextRunningPid = null;
+          
+          // Simulate some file interaction during I/O
+          const fileName = `temp_${p.pid}_${clock}.dat`;
+          const res = fileSystem.createFile(fileName, p.pid, clock);
+          if (typeof res !== 'string') {
+             fileSystem.writeFile(res.id, `Buffer data for ${p.pid} at clock ${clock}`);
+             newLogs.push(EventLogger.createEntry('FILESYSTEM', `Auto I/O: ${p.pid} wrote to ${fileName}`, p.pid));
+          }
+
+          newLogs.push(EventLogger.createEntry('SCHEDULER', `Process Interrupt: ${p.pid} requested I/O, state -> WAITING`, p.pid));
+          nextIsSwitching = true;
+          nextSwitchRemaining = CONTEXT_SWITCH_MS;
+          
+          set({
+            clock: nextClock,
+            processes: nextProcesses,
+            readyQueue: nextReadyQueue,
+            runningPid: nextRunningPid,
+            isSwitching: nextIsSwitching,
+            switchRemaining: nextSwitchRemaining,
+            logs: [...newLogs, ...state.logs]
+          });
+          return;
+        }
         
         const runTime = algorithm === 'RR' ? Math.min(p.remainingTime, 1) : 1; 
         p.remainingTime -= runTime;
@@ -284,7 +324,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
           p.endTime = nextClock;
           state.memoryManager.free(p.pid);
           nextRunningPid = null;
-          newLogs.push(EventLogger.createEntry('SCHEDULER', `${p.pid} finished. Entering context switch...`, p.pid));
+          newLogs.push(EventLogger.createEntry('SCHEDULER', `${p.pid} execution complete. Releasing memory...`, p.pid));
           
           nextIsSwitching = true;
           nextSwitchRemaining = CONTEXT_SWITCH_MS;
@@ -296,7 +336,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
           p.state = 'READY';
           nextReadyQueue.push(p.pid);
           nextRunningPid = null;
-          newLogs.push(EventLogger.createEntry('SCHEDULER', `${p.pid} quantum expired. Entering context switch...`, p.pid));
+          newLogs.push(EventLogger.createEntry('SCHEDULER', `Quantum expired for ${p.pid}. Switching...`, p.pid));
           
           nextIsSwitching = true;
           nextSwitchRemaining = CONTEXT_SWITCH_MS;
@@ -318,7 +358,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
           const oldPriority = p.priority;
           p.priority = Math.max(1, p.priority - 1);
           if (p.priority !== oldPriority) {
-            newLogs.push(EventLogger.createEntry('SCHEDULER', `Aging: ${p.pid} priority improved to ${p.priority}`, p.pid));
+            newLogs.push(EventLogger.createEntry('SCHEDULER', `Aging Active: ${p.pid} priority boosted to ${p.priority}`, p.pid));
           }
         }
       });
@@ -351,12 +391,13 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
             p.allocatedBlocks = allocRes.blocks;
             if (allocRes.fault) {
               nextIsPageFault = true;
-              newLogs.push(EventLogger.createEntry('MEMORY', `Page Fault! Replaced pages to fit ${p.pid}`, p.pid));
+              newLogs.push(EventLogger.createEntry('MEMORY', `Page Fault (Replacement): ${p.pid} loaded into active RAM.`, p.pid));
+            } else {
+              newLogs.push(EventLogger.createEntry('MEMORY', `Allocation: ${p.pid} allocated ${p.memRequired}MB using ${state.memoryStrategy}`, p.pid));
             }
           } else {
-            // Should theoretically not happen with replacement unless process itself > total memory
-            newLogs.push(EventLogger.createEntry('MEMORY', `Critical Memory Error: Cannot fit ${p.pid} even after replacement`, p.pid));
-            // Rotate the queue
+            newLogs.push(EventLogger.createEntry('MEMORY', `Allocation Fault: Insufficient space for ${p.pid}. Waiting for release...`, p.pid));
+            // Rotate the queue to allow other processes to try
             nextReadyQueue.push(nextReadyQueue.splice(selectedIdx, 1)[0]);
             set({ clock: nextClock, logs: [...newLogs, ...state.logs] });
             return;
@@ -365,10 +406,12 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
 
         nextRunningPid = nextReadyQueue.splice(selectedIdx, 1)[0];
         p.state = 'RUNNING';
-        if (p.startTime === undefined) p.startTime = nextClock - runTimePassed;
-        newLogs.push(EventLogger.createEntry('SCHEDULER', `Dispatched ${p.pid}`, p.pid));
+        if (p.startTime === undefined) p.startTime = nextClock - (nextClock > 0 ? 0 : 0);
+        newLogs.push(EventLogger.createEntry('SCHEDULER', `Dispatcher: ${p.pid} CPU assigned.`, p.pid));
         set({ nextContextPid: null });
       }
+
+      const isComplete = nextProcesses.length > 0 && nextProcesses.every(p => p.state === 'TERMINATED');
 
       set({
         clock: nextClock,
@@ -378,6 +421,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         isSwitching: nextIsSwitching,
         switchRemaining: nextSwitchRemaining,
         isPageFault: nextIsPageFault,
+        isSimulationComplete: isComplete,
         ganttLog: nextGanttLog,
         logs: [...newLogs, ...state.logs]
       });
@@ -389,6 +433,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         processes: [],
         readyQueue: [],
         runningPid: null,
+        isSimulationComplete: false,
         logs: [EventLogger.createEntry('SYSTEM', 'Simulation reset')],
         ganttLog: [],
       });

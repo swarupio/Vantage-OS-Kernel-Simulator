@@ -26,7 +26,9 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
   const { 
     clock, 
     algorithm, 
-    setAlgorithm, 
+    setAlgorithm,
+    memoryStrategy,
+    setMemoryStrategy,
     quantum, 
     setQuantum, 
     step, 
@@ -61,39 +63,72 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
         <div className="h-6 w-px bg-zinc-800/50" />
 
         <div className="flex items-center gap-4">
-          <div className="flex gap-px bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 h-8 flex-shrink-0 shadow-inner">
-            {(['RR', 'PRIORITY', 'SJF'] as const).map(algo => (
-              <Tooltip.Root key={algo}>
-                <Tooltip.Trigger asChild>
-                  <button 
-                    onClick={() => { setIsAuto(false); setAlgorithm(algo); }}
-                    className={`px-3 flex items-center h-full rounded text-[9px] font-black uppercase transition-all duration-200 ${
-                      algorithm === algo 
-                      ? 'bg-indigo-600 text-white shadow-[0_0_12px_rgba(79,70,229,0.4)] border border-indigo-400/20' 
-                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                    }`}
-                  >
-                    {algo}
-                  </button>
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content className="bg-zinc-900 text-white text-[10px] px-3 py-2 rounded-lg border border-zinc-800 shadow-2xl z-[200]" sideOffset={5}>
-                    Switch to {algo === 'RR' ? 'Round Robin' : algo === 'SJF' ? 'Shortest Job First' : 'Priority Scheduling'}
-                    <Tooltip.Arrow className="fill-zinc-800" />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            ))}
+          <div className="flex flex-col gap-1 pr-2">
+            <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest">Scheduler</span>
+            <div className="flex gap-px bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 h-8 flex-shrink-0 shadow-inner">
+              {(['RR', 'PRIORITY', 'SJF'] as const).map(algo => (
+                <Tooltip.Root key={algo}>
+                  <Tooltip.Trigger asChild>
+                    <button 
+                      onClick={() => { setIsAuto(false); setAlgorithm(algo); }}
+                      className={`px-3 flex items-center h-full rounded text-[9px] font-black uppercase transition-all duration-200 ${
+                        algorithm === algo 
+                        ? 'bg-indigo-600 text-white shadow-[0_0_12px_rgba(79,70,229,0.4)] border border-indigo-400/20' 
+                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                      }`}
+                    >
+                      {algo}
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className="bg-zinc-900 text-white text-[10px] px-3 py-2 rounded-lg border border-zinc-800 shadow-2xl z-[200]" sideOffset={5}>
+                      Switch to {algo === 'RR' ? 'Round Robin' : algo === 'SJF' ? 'Shortest Job First' : 'Priority Scheduling'}
+                      <Tooltip.Arrow className="fill-zinc-800" />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-4 w-px bg-zinc-800 self-end mb-2" />
+
+          <div className="flex flex-col gap-1">
+            <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest">Memory Allocation</span>
+            <div className="flex gap-px bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 h-8 flex-shrink-0 shadow-inner">
+              {(['FIRST_FIT', 'BEST_FIT'] as const).map(strat => (
+                <Tooltip.Root key={strat}>
+                  <Tooltip.Trigger asChild>
+                    <button 
+                      onClick={() => { setMemoryStrategy(strat); }}
+                      className={`px-3 flex items-center h-full rounded text-[9px] font-black uppercase transition-all duration-200 ${
+                        memoryStrategy === strat 
+                        ? 'bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] border border-emerald-400/20' 
+                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                      }`}
+                    >
+                      {strat.replace('_', ' ')}
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className="bg-zinc-900 text-white text-[10px] px-3 py-2 rounded-lg border border-zinc-800 shadow-2xl z-[200]" sideOffset={5}>
+                      Mode: {strat === 'FIRST_FIT' ? 'Fast arrival, more fragmentation' : 'Slower arrival, less fragmentation'}
+                      <Tooltip.Arrow className="fill-zinc-800" />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              ))}
+            </div>
           </div>
 
           {algorithm === 'RR' && (
-            <div className="flex items-center gap-3 bg-zinc-900/50 px-3 h-8 rounded-lg border border-zinc-800/50">
+            <div className="flex items-center gap-3 bg-zinc-900/50 px-3 h-8 rounded-lg border border-zinc-800/50 self-end">
               <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">Quantum: <span className="text-indigo-400">{quantum}ms</span></span>
               <input 
                 type="range" min="1" max="20" step="1" 
                 value={quantum} 
                 onChange={(e) => setQuantum(parseInt(e.target.value))}
-                className="w-20 accent-indigo-500 cursor-pointer h-1"
+                className="w-16 accent-indigo-500 cursor-pointer h-1"
               />
             </div>
           )}

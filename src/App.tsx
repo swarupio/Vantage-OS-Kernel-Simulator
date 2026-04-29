@@ -33,7 +33,7 @@ import { AICopilot } from './components/AICopilot';
 
 export default function App() {
   const { 
-    step, processes, logs, clearLogs
+    step, processes, logs, clearLogs, isSimulationComplete
   } = useSimulationStore();
   const [isAuto, setIsAuto] = useState(false);
   const [speed, setSpeed] = useState(1);
@@ -43,6 +43,13 @@ export default function App() {
   const [telemetryHeight, setTelemetryHeight] = useState(176); 
   const [isResizing, setIsResizing] = useState(false);
   const telemetryRef = React.useRef<HTMLDivElement>(null);
+  
+  // Auto-stop when complete
+  useEffect(() => {
+    if (isSimulationComplete && isAuto) {
+      setIsAuto(false);
+    }
+  }, [isSimulationComplete, isAuto]);
   
   // Resizing logic
   useEffect(() => {

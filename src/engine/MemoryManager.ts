@@ -31,6 +31,10 @@ export class MemoryManager {
     }));
   }
 
+  setStrategy(strategy: AllocationStrategy) {
+    this.strategy = strategy;
+  }
+
   setReplacementAlgorithm(algo: ReplacementAlgorithm) {
     this.replacementAlgorithm = algo;
   }

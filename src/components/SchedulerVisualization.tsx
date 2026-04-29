@@ -240,9 +240,11 @@ const StatBox = ({ label, value, color, desc }: { label: string, value: string, 
   <Tooltip.Provider>
     <Tooltip.Root>
       <Tooltip.Trigger asChild>
-        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm flex flex-col gap-1 transition-all hover:border-slate-700 cursor-help">
-          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">{label}</span>
-          <span className={`text-xl font-black font-mono tracking-tighter ${color} leading-none`}>{value}</span>
+        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-sm flex flex-col justify-between transition-all hover:border-slate-700 cursor-help h-full min-h-[80px]">
+          <div className="min-h-[24px] flex items-start">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-tight">{label}</span>
+          </div>
+          <span className={`text-xl font-black font-mono tracking-tighter ${color} leading-none mt-2`}>{value}</span>
         </div>
       </Tooltip.Trigger>
       <Tooltip.Portal>
