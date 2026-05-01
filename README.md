@@ -36,12 +36,12 @@ Make sure you have Node.js (v18 or higher) installed on your local machine.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/vantage-kernel-sim.git
+   git clone https://github.com/yourusername/Vantage-OS-Kernel-Simulator.git
    ```
 
 2. Navigate to the project directory:
    ```bash
-   cd vantage-kernel-sim
+   cd Vantage-OS-Kernel-Simulator
    ```
 
 3. Install the dependencies:
