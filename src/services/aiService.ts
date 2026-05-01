@@ -105,7 +105,7 @@ export const aiService = {
       3. Structured File Systems (Inodes, Block Allocation, Fragmentation).`;
 
       const ai = getAI();
-      const response = await ai.models.generateContent({
+      const result = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: [
           ...history.map(m => ({ role: m.role, parts: [{ text: m.text }] })),
@@ -126,9 +126,14 @@ export const aiService = {
         }
       });
 
+      // Manually extract text and function calls from parts to avoid the "non-text parts" warning
+      const parts = result.candidates?.[0]?.content?.parts || [];
+      const text = parts.filter(p => p.text).map(p => p.text).join('') || "";
+      const functionCalls = parts.filter(p => p.functionCall).map(p => p.functionCall);
+
       return {
-        text: response.text,
-        functionCalls: response.functionCalls
+        text,
+        functionCalls: functionCalls.length > 0 ? functionCalls : undefined
       };
     } catch (error) {
       console.error("AI Service Error:", error);
