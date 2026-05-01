@@ -75,10 +75,6 @@ Make sure you have Node.js (v18 or higher) installed on your local machine.
 Contributions, issues, and feature requests are welcome! 
 Feel free to check out the [issues page](../../issues).
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 
 ## Run Locally
 
