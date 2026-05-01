@@ -89,7 +89,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content className="bg-zinc-900 text-white text-[10px] px-3 py-2 rounded-lg border border-zinc-800 shadow-2xl z-[200]" sideOffset={5}>
-                      Switch to {algo === 'RR' ? 'Round Robin' : algo === 'SJF' ? 'Shortest Job First' : 'Priority Scheduling'}
+                      Switch to {algo === 'RR' ? 'RR' : algo === 'SJF' ? 'SJF' : 'Priority'}
                       <Tooltip.Arrow className="fill-zinc-800" />
                     </Tooltip.Content>
                   </Tooltip.Portal>
@@ -101,7 +101,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
           <div className="flex flex-col items-start">
             <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1 ml-0.5">Mem Allocation</span>
             <div className="flex gap-px bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 h-8 flex-shrink-0 shadow-inner">
-              {(['FIRST_FIT', 'BEST_FIT'] as const).map(strat => (
+              {(['FIRST_FIT', 'BEST_FIT', 'MOST_FIT'] as const).map(strat => (
                 <Tooltip.Root key={strat}>
                   <Tooltip.Trigger asChild>
                     <button 
@@ -117,7 +117,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content className="bg-zinc-900 text-white text-[10px] px-3 py-2 rounded-lg border border-zinc-800 shadow-2xl z-[200]" sideOffset={5}>
-                      Mode: {strat === 'FIRST_FIT' ? 'Fast arrival, more fragmentation' : 'Slower arrival, less fragmentation'}
+                      Mode: {strat === 'FIRST_FIT' ? 'Fast arrival, more fragmentation' : strat === 'BEST_FIT' ? 'Slower arrival, less fragmentation' : 'Uses largest free block to reduce small fragments'}
                       <Tooltip.Arrow className="fill-zinc-800" />
                     </Tooltip.Content>
                   </Tooltip.Portal>

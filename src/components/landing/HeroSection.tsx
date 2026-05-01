@@ -103,37 +103,37 @@ const Cube = () => {
           transform="translateZ(130px)" 
           color={theme.accent} 
           label="SCHED_CORE" 
-          content={['PID: 1024', 'BURST: 6ms', 'WAIT: 12ms', 'STATUS: RUN']} 
+          content={['PID: 1024 [RR]', 'BURST: 6ms', 'PRIO: HIGH', 'STATE: RUNNING', 'TQ: 2ms']} 
         />
         <CubeFace 
           transform="rotateY(180deg) translateZ(130px)" 
           color={theme.text3} 
           label="SYS_READY" 
-          content={['THREAD_POOL', 'LOAD: 0.42', 'SYNC: OK', 'BUF_READY']} 
+          content={['THREAD_POOL: ACTIVE', 'LOAD: 0.42 0.38 0.45', 'SYNC: OK', 'UPTIME: 342:12', 'VANTAGE_OS_v2']} 
         />
         <CubeFace 
           transform="rotateY(-90deg) translateZ(130px)" 
           color={theme.green} 
           label="MEM_UNIT" 
-          content={['ALLOC: 0x4F', 'FREE: 12MB', 'FRAG: 1.2%', 'STABLE']} 
+          content={['STRAT: MOST_FIT', 'ALLOC: 0x4F0A', 'FREE: 12MB / 64MB', 'FRAG: 1.25%', 'STACK: STABLE']} 
         />
         <CubeFace 
           transform="rotateY(90deg) translateZ(130px)" 
           color={theme.orange} 
           label="IO_BUS" 
-          content={['DMA_SYNC', 'PORT: 8080', 'ADDR: 0x2A', 'STREAMING']} 
+          content={['DMA_SYNC: ENABLED', 'PORT: 8080/UDP', 'ADDR: 0x2A_F0', 'ISR: VECTOR_0xC', 'BUSY']} 
         />
         <CubeFace 
           transform="rotateX(90deg) translateZ(130px)" 
           color={theme.purple} 
           label="FS_PIPE" 
-          content={['MOUNT: /BIN', 'TYPE: VFS', 'BLOCKS: 12K', 'ACTIVE']} 
+          content={['MOUNT: /SYS/KERNEL', 'TYPE: VFS_EXT4', 'BLOCKS: 12,432', 'INODE: 4096', 'JOURNAL: OK']} 
         />
         <CubeFace 
           transform="rotateX(-90deg) translateZ(130px)" 
           color={theme.cyan} 
           label="TELEMETRY" 
-          content={['PPS: 124', 'LAT: 2ms', 'JITTER: 0', 'MONITOR']} 
+          content={['PPS: 124.5', 'LAT: 2.3ms', 'JITTER: 0.02ms', 'MONITOR: ACTIVE', 'DB: CONNECTED']} 
         />
       </div>
       

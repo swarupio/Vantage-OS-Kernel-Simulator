@@ -70,8 +70,10 @@ export class MemoryManager {
   private tryAllocate(pid: string, needed: number): number[] | null {
     if (this.strategy === 'FIRST_FIT') {
       return this.allocateFirstFit(pid, needed);
-    } else {
+    } else if (this.strategy === 'BEST_FIT') {
       return this.allocateBestFit(pid, needed);
+    } else {
+      return this.allocateMostFit(pid, needed);
     }
   }
 
@@ -173,6 +175,46 @@ export class MemoryManager {
     if (bestStart !== -1) {
       const indices = [];
       for (let j = bestStart; j < bestStart + needed; j++) {
+        this.partitions[j].free = false;
+        this.partitions[j].owner = pid;
+        indices.push(j);
+      }
+      return indices;
+    }
+
+    return null;
+  }
+
+  private allocateMostFit(pid: string, needed: number): number[] | null {
+    // "Most Fit" (Worst Fit) finds the largest free hole.
+    let worstStart = -1;
+    let maxGap = -1;
+
+    let currentStart = -1;
+    let currentLen = 0;
+
+    for (let i = 0; i <= this.partitions.length; i++) {
+      if (i < this.partitions.length && this.partitions[i].free) {
+        if (currentStart === -1) currentStart = i;
+        currentLen++;
+      } else {
+        if (currentStart !== -1) {
+          if (currentLen >= needed) {
+            const gap = currentLen - needed;
+            if (gap > maxGap) {
+              maxGap = gap;
+              worstStart = currentStart;
+            }
+          }
+          currentStart = -1;
+          currentLen = 0;
+        }
+      }
+    }
+
+    if (worstStart !== -1) {
+      const indices = [];
+      for (let j = worstStart; j < worstStart + needed; j++) {
         this.partitions[j].free = false;
         this.partitions[j].owner = pid;
         indices.push(j);

@@ -72,6 +72,6 @@ export interface MemoryStats {
   pageFaults: number;
 }
 
-export type AllocationStrategy = 'FIRST_FIT' | 'BEST_FIT';
+export type AllocationStrategy = 'FIRST_FIT' | 'BEST_FIT' | 'MOST_FIT';
 export type ReplacementAlgorithm = 'FIFO' | 'LRU';
 export type SchedulingAlgorithm = 'RR' | 'PRIORITY' | 'SJF';

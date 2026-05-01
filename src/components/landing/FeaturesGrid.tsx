@@ -62,7 +62,7 @@ const features = [
   {
     Icon: Cpu,
     title: 'Process Manager',
-    subtitle: 'N → R → W → T',
+    subtitle: 'NEW → READY → WAITING → TERMINATED',
     description: 'Create processes with full PCB data. Watch real-time state transitions as the kernel manages process lifecycle from creation to termination.',
     accentColor: theme.accent,
   },
@@ -76,7 +76,7 @@ const features = [
   {
     Icon: HardDrive,
     title: 'Memory Manager',
-    subtitle: 'FF · BF · MF',
+    subtitle: 'FIRST FIT · BEST FIT · MOST FIT',
     description: 'Allocate and free partitions in real time. Toggle between strategies and compare fragmentation with a live visual memory map.',
     accentColor: theme.orange,
   },
