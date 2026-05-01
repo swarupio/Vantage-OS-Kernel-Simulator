@@ -332,7 +332,7 @@ export const BootSequence: React.FC<BootSequenceProps> = ({ onComplete }) => {
 
         {/* Center Logging Terminal */}
         <div style={{ flex: 1.5, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', position: 'relative', padding: '15px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(79,142,247,0.1)', borderRadius: '12px', backdropBlur: 'sm' }}>
+          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px', position: 'relative', padding: '15px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(79,142,247,0.1)', borderRadius: '12px', backdropFilter: 'blur(4px)' }}>
             {displayedLogs.map((log, i) => (
               <motion.div 
                 key={i}
@@ -440,7 +440,7 @@ export const BootSequence: React.FC<BootSequenceProps> = ({ onComplete }) => {
 
       {/* Footer / Progress */}
       <div style={{ marginTop: '20px', borderTop: '1px solid rgba(79,142,247,0.1)', paddingTop: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-        <div style={{ fontSize: '9px', opacity: 0.4, width: '80px', trackingWidest: '0.1em' }}>V_OS_CORE</div>
+        <div style={{ fontSize: '9px', opacity: 0.4, width: '80px', letterSpacing: '0.1em' }}>V_OS_CORE</div>
         <div style={{ flex: 1, height: '4px', background: 'rgba(79,142,247,0.05)', borderRadius: '2px', overflow: 'hidden', position: 'relative' }}>
           <div style={{ width: `${progress}%`, height: '100%', background: '#4f8ef7', transition: 'width 0.1s' }} />
         </div>

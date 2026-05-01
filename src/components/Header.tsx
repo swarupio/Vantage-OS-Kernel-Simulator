@@ -47,7 +47,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
   };
 
   return (
-    <header className="h-16 border-b border-zinc-800 bg-black flex items-center justify-between px-4 shrink-0 relative z-50">
+    <header className="h-16 border-b border-zinc-900 bg-zinc-950 flex items-center justify-between px-4 shrink-0 sticky top-0 z-50 shadow-2xl">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           {onHome && (

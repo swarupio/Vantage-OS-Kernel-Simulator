@@ -85,14 +85,15 @@ export const ProcessForm = () => {
     priority: 5,
     burstTime: 200,
     memRequired: 32,
-    arrivalTime: 0
+    arrivalTime: 0,
+    isIOBound: false
   });
 
   const profiles = {
-    NORMAL: { name: 'Standard-App', priority: 5, burstTime: 200, memRequired: 48, arrivalTime: 0 },
-    CRITICAL: { name: 'System-RT', priority: 1, burstTime: 50, memRequired: 16, arrivalTime: 0 },
-    BACKGROUND: { name: 'Worker-BG', priority: 10, burstTime: 500, memRequired: 64, arrivalTime: 0 },
-    STARVER: { name: 'Starve-X', priority: 1, burstTime: 5, memRequired: 32, arrivalTime: 0 }
+    NORMAL: { name: 'Standard-App', priority: 5, burstTime: 200, memRequired: 48, arrivalTime: 0, isIOBound: false },
+    CRITICAL: { name: 'System-RT', priority: 1, burstTime: 50, memRequired: 16, arrivalTime: 0, isIOBound: false },
+    BACKGROUND: { name: 'Worker-BG', priority: 10, burstTime: 500, memRequired: 64, arrivalTime: 0, isIOBound: false },
+    STARVER: { name: 'Starve-X', priority: 1, burstTime: 5, memRequired: 32, arrivalTime: 0, isIOBound: false }
   };
 
   const applyProfile = (key: keyof typeof profiles) => {
@@ -108,39 +109,64 @@ export const ProcessForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const pid = `P${(processes.length + 1).toString().padStart(3, '0')}`;
-    addProcess(pid, formData.name, formData.priority, formData.burstTime, formData.memRequired, formData.arrivalTime);
+    addProcess(pid, formData.name, formData.priority, formData.burstTime, formData.memRequired, formData.arrivalTime, formData.isIOBound);
     setActiveProfile(null);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="flex items-center justify-between mb-3 border-b border-zinc-800 pb-2">
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">Kernel Dispatcher</span>
       </div>
       
       <div className="grid grid-cols-2 gap-2">
         <div className="col-span-2">
-          <label className="text-[8px] font-black text-zinc-600 uppercase mb-1 block">Quick Profiles</label>
-          <div className="flex gap-1.5 mb-2">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Quick Profiles</label>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <div className="flex items-center gap-1.5 cursor-help group bg-zinc-900/50 px-2 py-0.5 rounded-full border border-zinc-800/50">
+                  <input 
+                    type="checkbox" 
+                    id="io-bound"
+                    checked={formData.isIOBound}
+                    onChange={e => handleInputChange('isIOBound', e.target.checked)}
+                    className="w-2.5 h-2.5 rounded bg-zinc-950 border-zinc-700 text-amber-500 focus:ring-0 focus:ring-offset-0 accent-amber-500 cursor-pointer"
+                  />
+                  <label htmlFor="io-bound" className={`text-[7px] font-black uppercase tracking-widest cursor-pointer select-none transition-colors ${formData.isIOBound ? 'text-amber-500' : 'text-zinc-500 group-hover:text-zinc-300'}`}>
+                    Auto Wait
+                  </label>
+                </div>
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Content className="bg-zinc-900 border border-zinc-800 p-2 text-[9px] text-zinc-300 rounded shadow-xl z-[100] max-w-[180px]" sideOffset={5}>
+                  <p className="font-bold text-amber-500 mb-1">AUTO-WAIT SIMULATION</p>
+                  Randomly triggers I/O interrupts while running, moving process to <span className="text-amber-500 font-bold">WAITING</span>.
+                  <Tooltip.Arrow className="fill-zinc-800" />
+                </Tooltip.Content>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </div>
+          <div className="grid grid-cols-4 gap-1.5 mb-2">
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
                 <button 
                   type="button"
                   onClick={() => applyProfile('NORMAL')}
-                  className={`flex-1 py-1 px-1 border rounded text-[7px] font-black uppercase transition-all ${
+                  className={`py-1.5 border rounded text-[8px] font-black uppercase transition-all duration-300 ${
                     activeProfile === 'NORMAL' 
-                    ? 'border-indigo-500 bg-indigo-500/20 text-white shadow-[0_0_10px_rgba(99,102,241,0.3)]' 
-                    : 'border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-400'
+                    ? 'border-indigo-500 bg-indigo-500/20 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.5)]' 
+                    : 'border-indigo-500/30 bg-zinc-950 text-indigo-400 hover:border-indigo-500/60 hover:shadow-[0_0_12px_rgba(99,102,241,0.3)]'
                   }`}
                 >
-                  Normal
+                  NORMAL
                 </button>
               </Tooltip.Trigger>
               <Tooltip.Portal>
-                <Tooltip.Content className="bg-zinc-900 border border-zinc-800 p-2 text-[9px] text-zinc-300 rounded shadow-xl z-[100] max-w-[150px]" sideOffset={5}>
-                  <p className="font-bold text-indigo-400 mb-1">NORMAL PROFILE</p>
-                  Balanced priority and burst. Ideal for general purpose testing.
-                  <Tooltip.Arrow className="fill-zinc-800" />
+                <Tooltip.Content className="bg-[#0c0c0e] border border-zinc-800 p-2.5 text-[9px] text-zinc-400 rounded-lg shadow-2xl z-[100] max-w-[160px] text-left leading-relaxed" side="top" sideOffset={8}>
+                  <p className="font-black text-[10px] text-indigo-400 mb-1 tracking-wider">NORMAL PROFILE</p>
+                  Standard process, balanced priority and burst time.
+                  <Tooltip.Arrow className="fill-zinc-800 relative -top-[1px]" />
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
@@ -150,20 +176,20 @@ export const ProcessForm = () => {
                 <button 
                   type="button"
                   onClick={() => applyProfile('CRITICAL')}
-                  className={`flex-1 py-1 px-1 border rounded text-[7px] font-black uppercase transition-all ${
+                  className={`py-1.5 border rounded text-[8px] font-black uppercase transition-all duration-300 ${
                     activeProfile === 'CRITICAL' 
-                    ? 'border-rose-500 bg-rose-500/20 text-white shadow-[0_0_10px_rgba(244,63,94,0.3)]' 
-                    : 'border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500'
+                    ? 'border-rose-500 bg-rose-500/20 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.5)]' 
+                    : 'border-rose-500/30 bg-zinc-950 text-rose-500 hover:border-rose-500/60 hover:shadow-[0_0_12px_rgba(244,63,94,0.3)]'
                   }`}
                 >
-                  Critical
+                  CRITICAL
                 </button>
               </Tooltip.Trigger>
               <Tooltip.Portal>
-                <Tooltip.Content className="bg-zinc-900 border border-zinc-800 p-2 text-[9px] text-zinc-300 rounded shadow-xl z-[100] max-w-[150px]" sideOffset={5}>
-                  <p className="font-bold text-rose-400 mb-1">CRITICAL PROFILE</p>
-                  High priority, short burst for real-time simulation.
-                  <Tooltip.Arrow className="fill-zinc-800" />
+                <Tooltip.Content className="bg-[#0c0c0e] border border-zinc-800 p-2.5 text-[9px] text-zinc-400 rounded-lg shadow-2xl z-[100] max-w-[160px] text-left leading-relaxed" side="top" sideOffset={8}>
+                  <p className="font-black text-[10px] text-rose-500 mb-1 tracking-wider">CRITICAL PROFILE</p>
+                  High priority, short burst for immediate execution.
+                  <Tooltip.Arrow className="fill-zinc-800 relative -top-[1px]" />
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
@@ -173,20 +199,20 @@ export const ProcessForm = () => {
                 <button 
                   type="button"
                   onClick={() => applyProfile('BACKGROUND')}
-                  className={`flex-1 py-1 px-1 border rounded text-[7px] font-black uppercase transition-all ${
+                  className={`py-1.5 border rounded text-[8px] font-black uppercase transition-all duration-300 ${
                     activeProfile === 'BACKGROUND' 
-                    ? 'border-slate-400 bg-slate-800 text-white shadow-[0_0_10px_rgba(148,163,184,0.2)]' 
-                    : 'border-slate-500/30 bg-zinc-950 hover:bg-zinc-800 text-slate-400'
+                    ? 'border-slate-400 bg-slate-500/20 text-slate-200 shadow-[0_0_15px_rgba(148,163,184,0.4)]' 
+                    : 'border-slate-500/30 bg-zinc-950 text-slate-400 hover:border-slate-500/60 hover:shadow-[0_0_12px_rgba(148,163,184,0.3)]'
                   }`}
                 >
-                  Backgr.
+                  BACKGR.
                 </button>
               </Tooltip.Trigger>
               <Tooltip.Portal>
-                <Tooltip.Content className="bg-zinc-900 border border-zinc-800 p-2 text-[9px] text-zinc-300 rounded shadow-xl z-[100] max-w-[150px]" sideOffset={5}>
-                  <p className="font-bold text-zinc-400 mb-1">BACKGROUND PROFILE</p>
-                  Low priority, long burst (susceptible to starvation).
-                  <Tooltip.Arrow className="fill-zinc-800" />
+                <Tooltip.Content className="bg-[#0c0c0e] border border-zinc-800 p-2.5 text-[9px] text-zinc-400 rounded-lg shadow-2xl z-[100] max-w-[160px] text-left leading-relaxed" side="top" sideOffset={8}>
+                  <p className="font-black text-[10px] text-slate-300 mb-1 tracking-wider">BACKGROUND PROFILE</p>
+                  Low priority, long burst. Simulates background tasks.
+                  <Tooltip.Arrow className="fill-zinc-800 relative -top-[1px]" />
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
@@ -196,26 +222,26 @@ export const ProcessForm = () => {
                 <button 
                   type="button"
                   onClick={() => applyProfile('STARVER')}
-                  className={`flex-1 py-1 px-1 border rounded text-[7px] font-black uppercase transition-all ${
+                  className={`py-1.5 border rounded text-[8px] font-black uppercase transition-all duration-300 ${
                     activeProfile === 'STARVER' 
-                    ? 'border-amber-500 bg-amber-500/20 text-white shadow-[0_0_10px_rgba(245,158,11,0.3)]' 
-                    : 'border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-500'
+                    ? 'border-amber-500 bg-amber-500/20 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]' 
+                    : 'border-amber-500/30 bg-zinc-950 text-amber-500 hover:border-amber-500/60 hover:shadow-[0_0_12px_rgba(245,158,11,0.3)]'
                   }`}
                 >
-                  Starver
+                  STARVER
                 </button>
               </Tooltip.Trigger>
               <Tooltip.Portal>
-                <Tooltip.Content className="bg-zinc-900 border border-zinc-800 p-2 text-[9px] text-zinc-300 rounded shadow-xl z-[100] max-w-[150px]" sideOffset={5}>
-                  <p className="font-bold text-amber-400 mb-1">STARVER PROFILE</p>
-                  High priority, tiny burst. Dispatch repeatedly to manually "starve" background tasks.
-                  <Tooltip.Arrow className="fill-zinc-800" />
+                <Tooltip.Content className="bg-[#0c0c0e] border border-zinc-800 p-2.5 text-[9px] text-zinc-400 rounded-lg shadow-2xl z-[100] max-w-[160px] text-left leading-relaxed" side="top" sideOffset={8}>
+                  <p className="font-black text-[10px] text-amber-500 mb-1 tracking-wider">STARVER PROFILE</p>
+                  High priority, very long burst. Placed repeatedly to manually "starve" background tasks.
+                  <Tooltip.Arrow className="fill-zinc-800 relative -top-[1px]" />
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
           </div>
 
-          <label className="text-[8px] font-black text-zinc-600 uppercase mb-1 block">Process ID/Name</label>
+          <label className="text-[8px] font-black text-zinc-600 uppercase mb-1 block">Process ID / Name</label>
           <input 
             type="text" 
             value={formData.name}
@@ -293,7 +319,7 @@ export const ProcessForm = () => {
       
       <button 
         type="submit"
-        className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-indigo-950/20"
+        className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-indigo-950/20"
       >
         Execute Local Dispatch
       </button>

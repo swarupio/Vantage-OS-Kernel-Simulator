@@ -15,7 +15,7 @@ export const AICopilot: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Access simulation store actions
-  const { step, reset, setAlgorithm, addProcess } = useSimulationStore();
+  const { step, reset, setAlgorithm, addProcess, triggerIO } = useSimulationStore();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -45,8 +45,11 @@ export const AICopilot: React.FC = () => {
             const args = call.args as { algorithm: any };
             setAlgorithm(args.algorithm);
           } else if (call.name === 'add_process') {
-            const args = call.args as { pid: string, name: string, priority: number, burstTime: number, memRequired: number };
-            addProcess(args.pid, args.name, args.priority, args.burstTime, args.memRequired);
+            const args = call.args as { pid: string, name: string, priority: number, burstTime: number, memRequired: number, isIOBound?: boolean };
+            addProcess(args.pid, args.name, args.priority, args.burstTime, args.memRequired, undefined, args.isIOBound);
+          } else if (call.name === 'trigger_io') {
+            const args = call.args as { pid: string };
+            triggerIO(args.pid);
           }
         } catch (e) {
           console.error("Function call execution error:", e);

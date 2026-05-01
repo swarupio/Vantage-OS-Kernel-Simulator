@@ -82,19 +82,19 @@ export const SchedulerVisualization = () => {
           </div>
        </div>
 
-       <div className="flex-1 overflow-hidden p-6 flex flex-col gap-6">
-          <div className="shrink-0 flex flex-col gap-4">
+       <div className="flex-1 overflow-hidden p-3 md:p-6 flex flex-col justify-between min-h-0 shrink-0">
+          <div className="flex flex-col gap-2 shrink-0 justify-center">
              <StateTransitionDiagram />
              <ReadyQueueFlow />
           </div>
 
           <div 
             ref={scrollContainerRef}
-            className="flex-1 bg-slate-950/20 px-8 py-8 rounded-3xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar min-h-0"
+            className="w-full bg-slate-950/20 px-4 pt-6 pb-2 mt-2 rounded-2xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar shrink-0 h-[120px]"
           >
             <div 
-              className="relative h-full bg-slate-900/30 border border-slate-800 rounded-2xl shadow-2xl mb-12 transition-all duration-300"
-              style={{ width: chartWidth, minWidth: '100%' }}
+              className="relative h-12 bg-slate-900/30 border border-slate-800 rounded-xl shadow-xl transition-all duration-300 mt-2 shrink-0"
+              style={{ width: chartWidth, minWidth: '100%', marginBottom: '32px' }}
             >
              {/* Background Grid - Fixed intervals of 10ms */}
              <div className="absolute inset-0 pointer-events-none">
@@ -147,14 +147,14 @@ export const SchedulerVisualization = () => {
              </AnimatePresence>
              
               {/* Timeline markers */}
-              <div className="absolute -bottom-10 left-0 right-0 h-8">
+              <div className="absolute -bottom-8 left-0 right-0 h-8">
                 {/* Always show 0ms */}
                 <div 
                    className="absolute flex flex-col items-center"
                    style={{ left: '0%' }}
                 >
-                  <div className="w-px h-3 bg-slate-400" />
-                  <span className="text-[9px] font-mono text-slate-400 font-bold mt-1">0ms</span>
+                  <div className="w-px h-2 bg-slate-400" />
+                  <span className="text-[8px] font-mono text-slate-400 font-bold mt-0.5">0ms</span>
                 </div>
 
                 {/* Transition markers - Show both start and end times clearly */}
@@ -184,8 +184,8 @@ export const SchedulerVisualization = () => {
                         className="absolute flex flex-col items-center transition-all duration-300 pointer-events-none"
                         style={{ left: `${leftEnd}%` }}
                       >
-                        <div className={`w-px ${isLast ? 'h-3 bg-indigo-500' : 'h-2 bg-slate-400/60'}`} />
-                        <span className={`text-[9px] font-mono font-black mt-1 drop-shadow-md ${isLast ? 'text-indigo-300 scale-110' : 'text-slate-200'}`}>
+                        <div className={`w-px ${isLast ? 'h-3 bg-indigo-500' : 'h-1.5 bg-slate-400/60'}`} />
+                        <span className={`text-[8px] font-mono font-black mt-0.5 drop-shadow-md ${isLast ? 'text-indigo-300 scale-110' : 'text-slate-200'}`}>
                           {endTime}
                         </span>
                       </div>
@@ -196,11 +196,11 @@ export const SchedulerVisualization = () => {
 
              {/* Current clock indicator */}
              <motion.div 
-               className="absolute top-0 bottom-0 w-[2px] bg-rose-500 z-10" 
+               className="absolute top-0 bottom-0 w-[1.5px] bg-rose-500 z-10" 
                animate={{ left: `${(clock / maxDisplayTime) * 100}%` }}
                transition={{ type: 'spring', stiffness: 100, damping: 20 }}
              >
-               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-rose-500 shadow-lg shadow-rose-500/50 border-2 border-white" />
+               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[2px] w-2.5 h-2.5 rounded-full bg-rose-500 shadow-md shadow-rose-500/50 border-[1.5px] border-white" />
              </motion.div>
           </div>
         </div>

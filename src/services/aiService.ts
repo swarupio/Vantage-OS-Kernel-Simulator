@@ -75,9 +75,22 @@ const addProcessFunction: FunctionDeclaration = {
       name: { type: Type.STRING, description: "Process name" },
       priority: { type: Type.NUMBER, description: "Priority (1-10, 1=highest)" },
       burstTime: { type: Type.NUMBER, description: "Total burst time in ms" },
-      memRequired: { type: Type.NUMBER, description: "Memory requirement in MB" }
+      memRequired: { type: Type.NUMBER, description: "Memory requirement in MB" },
+      isIOBound: { type: Type.BOOLEAN, description: "Whether the process should simulate spontaneous I/O waiting (suitable for I/O bound demo processes)." }
     },
     required: ["pid", "name", "priority", "burstTime", "memRequired"]
+  }
+};
+
+const triggerIOFunction: FunctionDeclaration = {
+  name: "trigger_io",
+  description: "Trigger an I/O interrupt for a specific process, moving it to the WAITING state.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      pid: { type: Type.STRING, description: "Process ID to interrupt (must be currently RUNNING)." }
+    },
+    required: ["pid"]
   }
 };
 
@@ -94,7 +107,8 @@ export const aiService = {
       - Step the simulation.
       - Reset the kernel.
       - Switch scheduling algorithms (RR, PRIORITY, SJF).
-      - Add new processes.
+      - Add new processes (optionally marking them as I/O Bound for auto-waiting demo).
+      - Trigger manual I/O for a running process.
       
       If a user asks you to "do" something (e.g., "Step the kernel", "Run one step", "Set algorithm to SJF", "Reset everything", "Add a process P1 with 50MB"), call the appropriate tool. 
       Always explain what action you performed in a friendly way.
@@ -120,7 +134,8 @@ export const aiService = {
               stepFunction,
               resetFunction,
               setAlgorithmFunction,
-              addProcessFunction
+              addProcessFunction,
+              triggerIOFunction
             ]
           }]
         }

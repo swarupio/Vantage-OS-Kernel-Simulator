@@ -51,7 +51,7 @@ interface SimulationState {
   setQuantum: (q: number) => void;
   setIORate: (rate: number) => void;
   setReplacementAlgorithm: (algo: ReplacementAlgorithm) => void;
-  addProcess: (pid: string, name: string, priority: number, burstTime: number, memRequired: number, arrivalTime?: number) => boolean;
+  addProcess: (pid: string, name: string, priority: number, burstTime: number, memRequired: number, arrivalTime?: number, isIOBound?: boolean) => boolean;
   step: () => void;
   reset: () => void;
   loadStarvationDemo: () => void;
@@ -154,7 +154,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       }));
     },
 
-    addProcess: (pid, name, priority, burstTime, memRequired, arrivalTime) => {
+    addProcess: (pid, name, priority, burstTime, memRequired, arrivalTime, isIOBound) => {
       const state = get();
       
       const newProcess: PCB = {
@@ -170,6 +170,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         createdAt: Date.now(),
         waitingTime: 0,
         ioWaitTimer: 0,
+        isIOBound: isIOBound || false,
       };
 
       set((s) => ({
@@ -264,8 +265,8 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         const pIdx = nextProcesses.findIndex(p => p.pid === nextRunningPid);
         const p = nextProcesses[pIdx];
         
-        // 2a. Check for internal I/O interrupt (random basis for simulation)
-        if (Math.random() < ioRate && p.remainingTime > 5) {
+        // 2a. Check for internal I/O interrupt (random basis for simulation - Only for I/O Bound processes)
+        if (p.isIOBound && Math.random() < ioRate && p.remainingTime > 5) {
           p.state = 'WAITING';
           p.ioWaitTimer = IO_WAIT_MS;
           nextRunningPid = null;
@@ -446,14 +447,14 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       setAlgorithm('PRIORITY');
       
       const demos = [
-        { name: 'Init', priority: 5, burst: 50, mem: 32, arrival: 0 },
-        { name: 'Browser', priority: 6, burst: 100, mem: 96, arrival: 0 },
-        { name: 'Background Service', priority: 8, burst: 200, mem: 32, arrival: 0 },
+        { name: 'Init', priority: 5, burst: 50, mem: 32, arrival: 0, io: false },
+        { name: 'Browser', priority: 6, burst: 100, mem: 96, arrival: 0, io: true },
+        { name: 'Background Service', priority: 8, burst: 200, mem: 32, arrival: 0, io: false },
       ];
 
       demos.forEach((d, i) => {
         const pid = `P${(i + 1).toString().padStart(3, '0')}`;
-        addProcess(pid, d.name, d.priority, d.burst, d.mem, d.arrival);
+        addProcess(pid, d.name, d.priority, d.burst, d.mem, d.arrival, d.io);
       });
 
       // Starvation trigger: Higher priority processes arriving constantly
@@ -477,9 +478,9 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       setQuantum(4);
       
       // Processes that will be manually or automatically put into wait states
-      addProcess('P001', 'Database Sync', 4, 300, 64, 0);
-      addProcess('P002', 'Audio Buffer', 2, 150, 32, 0);
-      addProcess('P003', 'User UI', 3, 200, 96, 5);
+      addProcess('P001', 'Database Sync', 4, 300, 64, 0, true);
+      addProcess('P002', 'Audio Buffer', 2, 150, 32, 0, true);
+      addProcess('P003', 'User UI', 3, 200, 96, 5, false);
       
       set(s => ({
         logs: [

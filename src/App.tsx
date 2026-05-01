@@ -138,12 +138,12 @@ export default function App() {
                 <div className="flex-1 flex overflow-hidden p-0.5 gap-px bg-zinc-800/10 relative">
                   {/* Column 1: Input Zone (FixedWidth for reliability) */}
                   <div className="w-80 flex-none flex flex-col gap-px bg-[#0c0c0e] border-r border-zinc-800/50 overflow-hidden">
-                    <div className="flex-none p-4 border-b border-zinc-800/50">
+                    <div className="flex-none p-3 border-b border-zinc-800/50">
                       <ProcessForm />
                     </div>
                     
-                    <div className="flex-1 overflow-hidden flex flex-col">
-                      <div className="p-4 border-b border-zinc-800/50 flex items-center justify-between">
+                    <div className="flex-1 overflow-hidden flex flex-col relative bg-[#0c0c0e]">
+                      <div className="p-3 border-y border-zinc-800/50 flex items-center justify-between shrink-0 z-20">
                         <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
                           <Layers size={12} className="text-zinc-500" /> PCB Registry
                         </span>
@@ -154,7 +154,7 @@ export default function App() {
                           View Archive
                         </button>
                       </div>
-                      <div className="flex-1 overflow-y-auto custom-scrollbar">
+                      <div className="flex-1 overflow-hidden relative flex flex-col">
                         <PCBTable />
                       </div>
                     </div>

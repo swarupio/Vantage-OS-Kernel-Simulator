@@ -20,6 +20,7 @@ export interface PCB {
   endTime?: number; // termination time
   waitingTime: number; // accumulated time in READY state
   ioWaitTimer?: number; // remaining virtual ms in WAITING state
+  isIOBound?: boolean; // If true, can trigger spontaneous I/O waiting
 }
 
 export interface MemoryPartition {
