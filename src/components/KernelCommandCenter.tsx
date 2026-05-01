@@ -8,7 +8,7 @@ import { Activity, Play, ChevronRight, RotateCcw, Workflow } from 'lucide-react'
 import { useSimulationStore } from '../store/simulationStore';
 
 export const KernelCommandCenter = ({ isAuto, setIsAuto }: { isAuto: boolean, setIsAuto: (v: boolean) => void }) => {
-  const { step, reset, loadDemo, algorithm, setAlgorithm, memoryStrategy, setMemoryStrategy } = useSimulationStore();
+  const { step, reset, loadBalancedDemo, algorithm, setAlgorithm, memoryStrategy, setMemoryStrategy } = useSimulationStore();
   
   return (
     <section className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 space-y-4">
@@ -76,7 +76,7 @@ export const KernelCommandCenter = ({ isAuto, setIsAuto }: { isAuto: boolean, se
            </div>
 
            <button 
-             onClick={() => loadDemo()}
+             onClick={() => loadBalancedDemo()}
              className="flex items-center gap-2 justify-center py-2 bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 border border-amber-600/20 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all"
            >
              <Workflow size={14} /> Load Reference Env

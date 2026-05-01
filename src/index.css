@@ -8,6 +8,15 @@
 }
 
 @layer base {
+  body {
+    background-color: #020202;
+    @apply bg-[#020202] text-zinc-400 antialiased font-sans;
+  }
+
+  #root {
+    background-color: #020202;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
