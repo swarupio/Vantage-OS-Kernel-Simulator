@@ -36,7 +36,7 @@ export const KernelCommandCenter = ({ isAuto, setIsAuto }: { isAuto: boolean, se
         <div className="space-y-1">
           <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest ml-1">Memory Allocation</span>
           <div className="grid grid-cols-3 gap-1 p-1 bg-slate-950 rounded-lg">
-            {(['FIRST_FIT', 'BEST_FIT', 'MOST_FIT'] as const).map(strat => (
+            {(['FIRST_FIT', 'BEST_FIT', 'WORST_FIT'] as const).map(strat => (
               <button 
                 key={strat}
                 onClick={() => setMemoryStrategy(strat)}

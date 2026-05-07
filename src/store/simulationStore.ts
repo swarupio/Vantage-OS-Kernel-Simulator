@@ -25,6 +25,7 @@ interface SimulationState {
   
   // Simulation State
   clock: number;
+  runId: number;
   processes: PCB[];
   readyQueue: string[]; // PIDs
   runningPid: string | null;
@@ -35,6 +36,11 @@ interface SimulationState {
   logs: LogEntry[];
   ganttLog: GanttEntry[];
   isSimulationComplete: boolean;
+  
+  // Playback Control
+  isAutoPlay: boolean;
+  playbackSpeed: number;
+  demoOverlay: { title: string, text: string } | null;
   
   // Constants
   CONTEXT_SWITCH_MS: number;
@@ -51,12 +57,18 @@ interface SimulationState {
   setQuantum: (q: number) => void;
   setIORate: (rate: number) => void;
   setReplacementAlgorithm: (algo: ReplacementAlgorithm) => void;
+  setIsAutoPlay: (isAuto: boolean) => void;
+  setPlaybackSpeed: (speed: number) => void;
+  setDemoOverlay: (overlay: { title: string, text: string } | null) => void;
   addProcess: (pid: string, name: string, priority: number, burstTime: number, memRequired: number, arrivalTime?: number, isIOBound?: boolean) => boolean;
   step: () => void;
   reset: () => void;
   loadStarvationDemo: () => void;
   loadWaitingDemo: () => void;
   loadBalancedDemo: () => void;
+  loadFirstFitDemo: () => void;
+  loadBestFitDemo: () => void;
+  loadWorstFitDemo: () => void;
   triggerIO: (pid: string) => void;
   
   // Stats
@@ -84,6 +96,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     ioRate: 0.05, // 5% chance of I/O interrupt per cycle
 
     clock: 0,
+    runId: 0,
     processes: [],
     readyQueue: [],
     runningPid: null,
@@ -94,6 +107,9 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     logs: [],
     ganttLog: [],
     isSimulationComplete: false,
+    isAutoPlay: false,
+    playbackSpeed: 1,
+    demoOverlay: null,
 
     CONTEXT_SWITCH_MS: 2,
     IO_WAIT_MS: 10,
@@ -104,10 +120,16 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     setup: (config) => {
       const memMgr = new MemoryManager(config.totalMemory, config.partitionSize, config.strategy);
       memMgr.setReplacementAlgorithm(config.replacementAlgo);
-      set({
-        ...config,
+      set((state) => ({
+        totalMemory: config.totalMemory,
+        partitionSize: config.partitionSize,
+        algorithm: config.algorithm,
+        memoryStrategy: config.strategy,
+        replacementAlgorithm: config.replacementAlgo,
+        quantum: config.quantum,
         memoryManager: memMgr,
         clock: 0,
+        runId: state.runId + 1,
         processes: [],
         readyQueue: [],
         runningPid: null,
@@ -117,7 +139,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         isSimulationComplete: false,
         logs: [EventLogger.createEntry('SYSTEM', `Simulation setup: ${config.algorithm}, ${config.strategy}, ${config.replacementAlgo}`)],
         ganttLog: [],
-      });
+      }));
     },
 
     setAlgorithm: (algorithm) => {
@@ -152,6 +174,18 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         replacementAlgorithm,
         logs: [EventLogger.createEntry('SYSTEM', `Switched replacement to ${replacementAlgorithm}`), ...s.logs]
       }));
+    },
+
+    setIsAutoPlay: (isAuto) => {
+      set({ isAutoPlay: isAuto });
+    },
+
+    setPlaybackSpeed: (speed) => {
+      set({ playbackSpeed: speed });
+    },
+
+    setDemoOverlay: (overlay) => {
+      set({ demoOverlay: overlay });
     },
 
     addProcess: (pid, name, priority, burstTime, memRequired, arrivalTime, isIOBound) => {
@@ -201,6 +235,18 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
           p.state = 'READY';
           nextReadyQueue.push(p.pid);
           newLogs.push(EventLogger.createEntry('SCHEDULER', `Arrival: ${p.pid} moved to READY queue.`, p.pid));
+          
+          if (p.allocatedBlocks.length === 0) {
+            const allocRes = state.memoryManager.allocate(p.pid, p.memRequired, clock);
+            if (allocRes) {
+              p.allocatedBlocks = allocRes.blocks;
+              if (allocRes.fault) {
+                newLogs.push(EventLogger.createEntry('MEMORY', `Page Fault (Replacement): ${p.pid} loaded into active RAM.`, p.pid));
+              } else {
+                newLogs.push(EventLogger.createEntry('MEMORY', `Allocation: ${p.pid} allocated ${p.memRequired}MB using ${state.memoryStrategy}`, p.pid));
+              }
+            }
+          }
         }
       });
 
@@ -414,6 +460,30 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
 
       const isComplete = nextProcesses.length > 0 && nextProcesses.every(p => p.state === 'TERMINATED');
 
+      let nextIsAutoPlay = state.isAutoPlay;
+      let nextDemoOverlay = state.demoOverlay;
+
+      // Pedagogical Demo Pauses
+      if (nextClock === 20 && nextProcesses.some(p => p.pid === 'P007' && p.arrivalTime === 20)) {
+         nextIsAutoPlay = false;
+         nextDemoOverlay = {
+            title: `[t=20] Demanding Memory...`,
+            text: `P007 just arrived and requires 32MB (2 blocks). The OS will attempt to allocate it using ${state.memoryStrategy.replace('_', ' ')}. Check the memory holes mapped in the Memory Map above right now! Click Step (or Continue) to see where it gets placed.`
+         };
+      } else if (nextClock === 21 && nextProcesses.some(p => p.pid === 'P007' && p.arrivalTime === 20)) {
+         nextIsAutoPlay = false;
+         nextDemoOverlay = {
+            title: `[t=21] Allocation Complete!`,
+            text: state.memoryStrategy === 'FIRST_FIT' 
+                ? "First Fit scanned from the top and picked the FIRST hole big enough (the 3-block 48MB hole), leaving a 1-block fragment behind."
+                : state.memoryStrategy === 'BEST_FIT'
+                ? "Best Fit scanned ALL holes and picked the PERFECT 2-block (32MB) hole. This is optimally dense and saves the bigger holes for later!"
+                : "Worst Fit scanned ALL holes and intentionally chose the LARGEST hole (the 9-block 144MB one at the bottom), leaving a huge fully usable fragment behind."
+         };
+      } else if (nextClock === 22 && nextProcesses.some(p => p.pid === 'P007' && p.arrivalTime === 20)) {
+         nextDemoOverlay = null;
+      }
+
       set({
         clock: nextClock,
         processes: nextProcesses,
@@ -424,20 +494,23 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         isPageFault: nextIsPageFault,
         isSimulationComplete: isComplete,
         ganttLog: nextGanttLog,
+        isAutoPlay: nextIsAutoPlay,
+        demoOverlay: nextDemoOverlay,
         logs: [...newLogs, ...state.logs]
       });
     },
 
     reset: () => {
-      set({
+      set((state) => ({
         clock: 0,
+        runId: state.runId + 1,
         processes: [],
         readyQueue: [],
         runningPid: null,
         isSimulationComplete: false,
         logs: [EventLogger.createEntry('SYSTEM', 'Simulation reset')],
         ganttLog: [],
-      });
+      }));
       get().memoryManager.configure(get().totalMemory, get().partitionSize, get().memoryStrategy);
     },
 
@@ -447,9 +520,9 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       setAlgorithm('PRIORITY');
       
       const demos = [
-        { name: 'Init', priority: 5, burst: 50, mem: 32, arrival: 0, io: false },
-        { name: 'Browser', priority: 6, burst: 100, mem: 96, arrival: 0, io: true },
-        { name: 'Background Service', priority: 8, burst: 200, mem: 32, arrival: 0, io: false },
+        { name: 'Init', priority: 5, burst: 30, mem: 32, arrival: 0, io: false },
+        { name: 'Browser', priority: 6, burst: 60, mem: 96, arrival: 0, io: true },
+        { name: 'Background Service', priority: 8, burst: 80, mem: 32, arrival: 0, io: false },
       ];
 
       demos.forEach((d, i) => {
@@ -478,9 +551,9 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       setQuantum(4);
       
       // Processes that will be manually or automatically put into wait states
-      addProcess('P001', 'Database Sync', 4, 300, 64, 0, true);
-      addProcess('P002', 'Audio Buffer', 2, 150, 32, 0, true);
-      addProcess('P003', 'User UI', 3, 200, 96, 5, false);
+      addProcess('P001', 'Database Sync', 4, 80, 64, 0, true);
+      addProcess('P002', 'Audio Buffer', 2, 60, 32, 0, true);
+      addProcess('P003', 'User UI', 3, 90, 96, 5, false);
       
       set(s => ({
         logs: [
@@ -497,12 +570,86 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       setAlgorithm('RR');
       setQuantum(4);
       
-      addProcess('P001', 'Web Server', 4, 150, 64, 0);
-      addProcess('P002', 'Cache Service', 3, 100, 32, 2);
-      addProcess('P003', 'UI Engine', 5, 200, 128, 5);
+      addProcess('P001', 'Web Server', 4, 70, 64, 0);
+      addProcess('P002', 'Cache Service', 3, 50, 32, 2);
+      addProcess('P003', 'UI Engine', 5, 90, 128, 5);
       
       set(s => ({
         logs: [EventLogger.createEntry('SYSTEM', 'Demo: Balanced Workload loaded'), ...s.logs]
+      }));
+    },
+
+    loadFirstFitDemo: () => {
+      const { setup, addProcess } = get();
+      setup({ totalMemory: 256, partitionSize: 16, algorithm: 'RR', strategy: 'FIRST_FIT', replacementAlgo: 'FIFO', quantum: 4 });
+      
+      // Initial blocks
+      addProcess('P001', 'Task A (Top)', 4, 4, 48, 0); // 3 blocks. Finishes at <20
+      addProcess('P002', 'Sys 1', 1, 90, 16, 0);        // 1 block.
+      addProcess('P003', 'Task B (Mid)', 4, 4, 32, 0); // 2 blocks. Finishes at <20
+      addProcess('P004', 'Sys 2', 1, 90, 16, 0);        // 1 block.
+      addProcess('P005', 'Task C (Bot)', 4, 4, 64, 0); // 4 blocks. Finishes at <20
+      
+      // Arrives right after P001, P003, and P005 finish.
+      // Memory holes will be: [3 blocks], [P002], [2 blocks], [P004], [4 blocks] + [5 blocks unallocated].
+      // Hole 3 and Unallocated combine into a 9-block hole at the bottom.
+      // First Fit should place P007 in the FIRST hole (the 3-block one), leaving a 1-block fragment.
+      addProcess('P007', 'New Process (Wait for t=20)', 4, 60, 32, 20);
+      
+      set(s => ({
+        logs: [
+          EventLogger.createEntry('SYSTEM', 'Demo: First Fit Strategy loaded.'),
+          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=20! First Fit will grab the FIRST hole big enough.'),
+          ...s.logs
+        ]
+      }));
+    },
+
+    loadBestFitDemo: () => {
+      const { setup, addProcess } = get();
+      setup({ totalMemory: 256, partitionSize: 16, algorithm: 'RR', strategy: 'BEST_FIT', replacementAlgo: 'FIFO', quantum: 4 });
+      
+      // Initial blocks
+      addProcess('P001', 'Task A (Top)', 4, 4, 48, 0); // 3 blocks. Finishes at <20
+      addProcess('P002', 'Sys 1', 1, 90, 16, 0);        // 1 block.
+      addProcess('P003', 'Task B (Mid)', 4, 4, 32, 0); // 2 blocks. Finishes at <20
+      addProcess('P004', 'Sys 2', 1, 90, 16, 0);        // 1 block.
+      addProcess('P005', 'Task C (Bot)', 4, 4, 64, 0); // 4 blocks. Finishes at <20
+      
+      // Arrives right after P001, P003, and P005 finish.
+      // Best Fit should place it in the exact-matching 2-block hole (mid), leaving the 3-block hole intact.
+      addProcess('P007', 'New Process (Wait for t=20)', 4, 60, 32, 20);
+      
+      set(s => ({
+        logs: [
+          EventLogger.createEntry('SYSTEM', 'Demo: Best Fit Strategy loaded.'),
+          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=20! Best Fit will grab the SMALLEST hole that fits exactly.'),
+          ...s.logs
+        ]
+      }));
+    },
+
+    loadWorstFitDemo: () => {
+      const { setup, addProcess } = get();
+      setup({ totalMemory: 256, partitionSize: 16, algorithm: 'RR', strategy: 'WORST_FIT', replacementAlgo: 'FIFO', quantum: 4 });
+      
+      // Initial blocks
+      addProcess('P001', 'Task A (Top)', 4, 4, 48, 0); // 3 blocks. Finishes at <20
+      addProcess('P002', 'Sys 1', 1, 90, 16, 0);        // 1 block.
+      addProcess('P003', 'Task B (Mid)', 4, 4, 32, 0); // 2 blocks. Finishes at <20
+      addProcess('P004', 'Sys 2', 1, 90, 16, 0);        // 1 block.
+      addProcess('P005', 'Task C (Bot)', 4, 4, 64, 0); // 4 blocks. Finishes at <20
+      
+      // Arrives right after P001, P003, and P005 finish.
+      // Worst Fit should place it in the largest hole (9-block combined hole at bottom).
+      addProcess('P007', 'New Process (Wait for t=20)', 4, 60, 32, 20);
+      
+      set(s => ({
+        logs: [
+          EventLogger.createEntry('SYSTEM', 'Demo: Worst Fit Strategy loaded.'),
+          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=20! Worst Fit will grab the LARGEST hole, leaving the biggest possible leftovers.'),
+          ...s.logs
+        ]
       }));
     },
 

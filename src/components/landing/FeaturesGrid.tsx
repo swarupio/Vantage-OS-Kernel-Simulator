@@ -76,7 +76,7 @@ const features = [
   {
     Icon: HardDrive,
     title: 'Memory Manager',
-    subtitle: 'FIRST FIT · BEST FIT · MOST FIT',
+    subtitle: 'FIRST FIT · BEST FIT · WORST FIT',
     description: 'Allocate and free partitions in real time. Toggle between strategies and compare fragmentation with a live visual memory map.',
     accentColor: theme.orange,
   },

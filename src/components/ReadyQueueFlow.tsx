@@ -10,7 +10,7 @@ import { getPidColor } from '../lib/utils';
 import { ArrowRight } from 'lucide-react';
 
 export const ReadyQueueFlow = () => {
-  const { readyQueue, runningPid, isSwitching, nextContextPid } = useSimulationStore();
+  const { readyQueue, runningPid, isSwitching, nextContextPid, runId } = useSimulationStore();
   
   return (
     <div className="flex items-center gap-1 h-12 px-2 bg-black/40 rounded-xl border border-zinc-800/50 overflow-hidden relative">
@@ -18,9 +18,9 @@ export const ReadyQueueFlow = () => {
       
       <div className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar">
         <AnimatePresence mode="popLayout">
-          {readyQueue.map((pid, idx) => (
+          {readyQueue.map((pid) => (
             <motion.div
-              key={`${pid}-${idx}`}
+              key={`${runId}-${pid}`}
               layout
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -46,7 +46,7 @@ export const ReadyQueueFlow = () => {
         <AnimatePresence mode="wait">
           {runningPid ? (
             <motion.div
-              key={runningPid}
+              key={`${runId}-${runningPid}`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className={`w-14 h-6 rounded flex items-center justify-center text-[9px] font-black ${getPidColor(runningPid)} text-white shadow-lg shadow-indigo-500/20 z-10 border border-white/20`}

@@ -73,7 +73,7 @@ export class MemoryManager {
     } else if (this.strategy === 'BEST_FIT') {
       return this.allocateBestFit(pid, needed);
     } else {
-      return this.allocateMostFit(pid, needed);
+      return this.allocateWorstFit(pid, needed);
     }
   }
 
@@ -185,8 +185,8 @@ export class MemoryManager {
     return null;
   }
 
-  private allocateMostFit(pid: string, needed: number): number[] | null {
-    // "Most Fit" (Worst Fit) finds the largest free hole.
+  private allocateWorstFit(pid: string, needed: number): number[] | null {
+    // "Worst Fit" finds the largest free hole.
     let worstStart = -1;
     let maxGap = -1;
 

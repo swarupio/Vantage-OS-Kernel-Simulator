@@ -9,7 +9,7 @@ import { getPidColor, getPidTextColor } from '../lib/utils';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 export const PCBTable = () => {
-  const { processes, runningPid } = useSimulationStore();
+  const { processes, runningPid, runId } = useSimulationStore();
   // Filter for active processes only
   const activeProcesses = processes.filter(p => p.state !== 'TERMINATED');
   const displayProcesses = [...activeProcesses].reverse(); // Show newest at top
@@ -50,7 +50,7 @@ export const PCBTable = () => {
         <div className="flex flex-col flex-1 overflow-y-auto custom-scrollbar pb-10 relative bg-zinc-950/20">
           {displayProcesses.map(p => (
             <div 
-              key={p.pid} 
+              key={`${runId}-${p.pid}`} 
               className={`grid grid-cols-[1.5fr_0.8fr_0.8fr_0.8fr_1fr_1.5fr] items-center py-2.5 px-3 border-b border-zinc-800/10 transition-all ${
                 runningPid === p.pid ? 'bg-indigo-500/15 ring-1 ring-inset ring-indigo-500/30' : 'hover:bg-zinc-800/5'
               }`}

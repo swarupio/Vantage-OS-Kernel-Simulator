@@ -115,7 +115,7 @@ const Cube = () => {
           transform="rotateY(-90deg) translateZ(130px)" 
           color={theme.green} 
           label="MEM_UNIT" 
-          content={['STRAT: MOST_FIT', 'ALLOC: 0x4F0A', 'FREE: 12MB / 64MB', 'FRAG: 1.25%', 'STACK: STABLE']} 
+          content={['STRAT: WORST_FIT', 'ALLOC: 0x4F0A', 'FREE: 12MB / 64MB', 'FRAG: 1.25%', 'STACK: STABLE']} 
         />
         <CubeFace 
           transform="rotateY(90deg) translateZ(130px)" 

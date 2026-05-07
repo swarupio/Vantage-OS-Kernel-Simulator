@@ -36,12 +36,12 @@ Make sure you have Node.js (v18 or higher) installed on your local machine.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/Vantage-OS-Kernel-Simulator.git
+   git clone https://github.com/yourusername/vantage-kernel-sim.git
    ```
 
 2. Navigate to the project directory:
    ```bash
-   cd Vantage-OS-Kernel-Simulator
+   cd vantage-kernel-sim
    ```
 
 3. Install the dependencies:
@@ -75,14 +75,6 @@ Make sure you have Node.js (v18 or higher) installed on your local machine.
 Contributions, issues, and feature requests are welcome! 
 Feel free to check out the [issues page](../../issues).
 
+## 📝 License
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+This project is licensed under the MIT License - see the LICENSE file for details.

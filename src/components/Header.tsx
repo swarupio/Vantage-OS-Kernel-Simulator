@@ -15,16 +15,12 @@ import {
 } from 'lucide-react';
 
 interface HeaderProps {
-  isAuto: boolean;
-  setIsAuto: (val: boolean) => void;
-  speed: number;
-  setSpeed: (val: number) => void;
   showGuide: boolean;
   setShowGuide: (val: boolean) => void;
   onHome?: () => void;
 }
 
-export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowGuide, onHome }: HeaderProps) => {
+export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
   const { 
     clock, 
     algorithm, 
@@ -37,13 +33,22 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
     reset, 
     loadStarvationDemo, 
     loadWaitingDemo,
-    loadBalancedDemo 
+    loadBalancedDemo,
+    loadFirstFitDemo,
+    loadBestFitDemo,
+    loadWorstFitDemo,
+    isAutoPlay,
+    setIsAutoPlay,
+    playbackSpeed,
+    setPlaybackSpeed,
+    demoOverlay,
+    setDemoOverlay
   } = useSimulationStore();
   
   const cycleSpeed = () => {
     const speeds = [1, 2, 4, 8];
-    const currentIndex = speeds.indexOf(speed);
-    setSpeed(speeds[(currentIndex + 1) % speeds.length]);
+    const currentIndex = speeds.indexOf(playbackSpeed);
+    setPlaybackSpeed(speeds[(currentIndex + 1) % speeds.length]);
   };
 
   return (
@@ -77,7 +82,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
                 <Tooltip.Root key={algo}>
                   <Tooltip.Trigger asChild>
                     <button 
-                      onClick={() => { setIsAuto(false); setAlgorithm(algo); }}
+                      onClick={() => { setIsAutoPlay(false); setAlgorithm(algo); }}
                       className={`px-3 flex items-center h-full rounded text-[9px] font-black uppercase transition-all duration-200 ${
                         algorithm === algo 
                         ? 'bg-indigo-600 text-white shadow-[0_0_12px_rgba(79,70,229,0.4)] border border-indigo-400/20' 
@@ -98,33 +103,44 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
             </div>
           </div>
 
-          <div className="flex flex-col items-start">
-            <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1 ml-0.5">Mem Allocation</span>
-            <div className="flex gap-px bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 h-8 flex-shrink-0 shadow-inner">
-              {(['FIRST_FIT', 'BEST_FIT', 'MOST_FIT'] as const).map(strat => (
-                <Tooltip.Root key={strat}>
-                  <Tooltip.Trigger asChild>
-                    <button 
-                      onClick={() => { setMemoryStrategy(strat); }}
-                      className={`px-3 flex items-center h-full rounded text-[9px] font-black uppercase transition-all duration-200 ${
-                        memoryStrategy === strat 
-                        ? 'bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] border border-emerald-400/20' 
-                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                      }`}
-                    >
-                      {strat.replace('_', ' ')}
-                    </button>
-                  </Tooltip.Trigger>
-                  <Tooltip.Portal>
-                    <Tooltip.Content className="bg-zinc-900 text-white text-[10px] px-3 py-2 rounded-lg border border-zinc-800 shadow-2xl z-[200]" sideOffset={5}>
-                      Mode: {strat === 'FIRST_FIT' ? 'Fast arrival, more fragmentation' : strat === 'BEST_FIT' ? 'Slower arrival, less fragmentation' : 'Uses largest free block to reduce small fragments'}
-                      <Tooltip.Arrow className="fill-zinc-800" />
-                    </Tooltip.Content>
-                  </Tooltip.Portal>
-                </Tooltip.Root>
-              ))}
+            <div className="flex flex-col items-start px-2 py-0.5 rounded border border-emerald-900/30 bg-emerald-900/10 mb-0">
+              <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest leading-none mb-1 ml-0.5 whitespace-nowrap">Memory Allocator Map Strategy</span>
+              <div className="flex gap-px bg-zinc-900 p-0.5 rounded-md border border-zinc-800 h-7 flex-shrink-0 shadow-inner">
+                {(['FIRST_FIT', 'BEST_FIT', 'WORST_FIT'] as const).map(strat => (
+                  <Tooltip.Root key={strat}>
+                    <Tooltip.Trigger asChild>
+                      <button 
+                        onClick={() => { setMemoryStrategy(strat); }}
+                        className={`px-3 flex items-center h-full rounded text-[8px] font-black uppercase transition-all duration-200 ${
+                          memoryStrategy === strat 
+                          ? 'bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.3)] border border-emerald-400/20' 
+                          : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                        }`}
+                      >
+                        {strat.replace('_', ' ')}
+                      </button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Portal>
+                      <Tooltip.Content 
+                        className="bg-[#0c0c0e] border border-emerald-900 p-2.5 text-[9px] text-zinc-400 rounded-lg shadow-2xl z-[200] max-w-[200px] text-left leading-relaxed" 
+                        sideOffset={5}
+                      >
+                        <p className="font-black text-[10px] text-emerald-400 mb-1 tracking-wider whitespace-nowrap">
+                          {strat.replace('_', ' ')} ALLOCATION
+                        </p>
+                        {strat === 'FIRST_FIT' && "Allocates the very first free block that is large enough. It is fast but can scatter processes randomly."}
+                        {strat === 'BEST_FIT' && "Allocates the smallest free block that can hold the process. It saves large holes but creates tiny, unusable fragments."}
+                        {strat === 'WORST_FIT' && "Allocates the largest available free block. It leaves larger, more usable leftover spaces (holes)."}
+                        <p className="mt-2 text-[8px] text-emerald-500/70 italic inline-flex items-center gap-1">
+                          <Activity size={10} /> Watch the Physical Page Map
+                        </p>
+                        <Tooltip.Arrow className="fill-emerald-900/50" />
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
+                ))}
+              </div>
             </div>
-          </div>
 
           {algorithm === 'RR' && (
             <div className="flex flex-col items-start">
@@ -148,24 +164,24 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
              <Tooltip.Trigger asChild>
                <div className="flex bg-zinc-900/50 p-0.5 rounded-lg border border-zinc-800/50 gap-0.5 h-8 items-stretch">
                  <button 
-                   onClick={() => setIsAuto(!isAuto)}
-                   className={`flex items-center gap-2 px-3 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${isAuto ? 'bg-rose-600 text-white shadow-lg' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-900/20'}`}
+                   onClick={() => setIsAutoPlay(!isAutoPlay)}
+                   className={`flex items-center gap-2 px-3 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${isAutoPlay ? 'bg-rose-600 text-white shadow-lg' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-900/20'}`}
                  >
-                   {isAuto ? <Activity size={10} /> : <Play size={10} />}
-                   {isAuto ? 'STOP' : 'RUN'}
+                   {isAutoPlay ? <Activity size={10} /> : <Play size={10} />}
+                   {isAutoPlay ? 'STOP' : 'RUN'}
                  </button>
                  
                  <button 
                   onClick={cycleSpeed}
-                  className={`flex items-center px-2 rounded-md text-[9px] font-black transition-all ${speed > 1 ? 'bg-indigo-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                  className={`flex items-center px-2 rounded-md text-[9px] font-black transition-all ${playbackSpeed > 1 ? 'bg-indigo-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
                  >
-                   {speed}x
+                   {playbackSpeed}x
                  </button>
                </div>
              </Tooltip.Trigger>
              <Tooltip.Portal>
                <Tooltip.Content className="bg-zinc-900 text-white text-[10px] px-3 py-2 rounded-lg border border-zinc-800 shadow-2xl z-[200]" sideOffset={5}>
-                 {isAuto ? 'Pause Autoplay' : 'Start Autoplay'}
+                 {isAutoPlay ? 'Pause Autoplay' : 'Start Autoplay'}
                  <Tooltip.Arrow className="fill-zinc-800" />
                </Tooltip.Content>
              </Tooltip.Portal>
@@ -202,26 +218,54 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
               </DropdownMenu.Trigger>
               <DropdownMenu.Portal>
                 <DropdownMenu.Content 
-                  className="min-w-[160px] bg-zinc-900 border border-zinc-800 rounded-lg p-1 shadow-2xl z-[200] animate-in fade-in zoom-in duration-100"
+                  className="min-w-[280px] bg-zinc-900 border border-zinc-800 rounded-lg p-2 shadow-2xl z-[200] animate-in fade-in zoom-in duration-100"
                   sideOffset={5}
                 >
+                  <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest px-2 pb-1 mb-1 border-b border-zinc-800/50">CPU Scheduling Demos</div>
                   <DropdownMenu.Item 
-                    onClick={() => { setIsAuto(false); loadBalancedDemo(); }}
-                    className="flex items-center px-3 py-2 text-[10px] font-bold text-zinc-300 hover:bg-indigo-600 hover:text-white rounded-md cursor-pointer outline-none transition-colors"
+                    onClick={() => { setIsAutoPlay(false); loadBalancedDemo(); setIsAutoPlay(true); }}
+                    className="flex flex-col px-2 py-1.5 text-zinc-300 hover:bg-zinc-800 rounded-md cursor-pointer outline-none transition-colors"
                   >
-                    1. Balanced Workload
+                    <span className="text-[10px] font-bold text-indigo-400">Balanced Workload</span>
+                    <span className="text-[9px] text-zinc-500 mt-0.5">Standard mix of processes to test basic functionality.</span>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item 
-                    onClick={() => { setIsAuto(false); loadStarvationDemo(); }}
-                    className="flex items-center px-3 py-2 text-[10px] font-bold text-zinc-300 hover:bg-indigo-600 hover:text-white rounded-md cursor-pointer outline-none transition-colors"
+                    onClick={() => { setIsAutoPlay(false); loadStarvationDemo(); setIsAutoPlay(true); }}
+                    className="flex flex-col px-2 py-1.5 text-zinc-300 hover:bg-zinc-800 rounded-md cursor-pointer outline-none transition-colors"
                   >
-                    2. Starvation Case
+                    <span className="text-[10px] font-bold text-rose-500">Starvation Priority</span>
+                    <span className="text-[9px] text-zinc-500 mt-0.5">Watch high priority tasks block lower ones.</span>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item 
-                    onClick={() => { setIsAuto(false); loadWaitingDemo(); }}
-                    className="flex items-center px-3 py-2 text-[10px] font-bold text-zinc-300 hover:bg-indigo-600 hover:text-white rounded-md cursor-pointer outline-none transition-colors"
+                    onClick={() => { setIsAutoPlay(false); loadWaitingDemo(); setIsAutoPlay(true); }}
+                    className="flex flex-col px-2 py-1.5 text-zinc-300 hover:bg-zinc-800 rounded-md cursor-pointer outline-none transition-colors"
                   >
-                    3. I/O Waiting Demo
+                    <span className="text-[10px] font-bold text-amber-500">I/O Wait Handling</span>
+                    <span className="text-[9px] text-zinc-500 mt-0.5">Simulate interrupt-driven I/O context switching.</span>
+                  </DropdownMenu.Item>
+
+                  <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest px-2 pb-1 mt-2 mb-1 border-b border-zinc-800/50">Memory Allocation Demos (Watch MMU at t=35)</div>
+                  
+                  <DropdownMenu.Item 
+                    onClick={() => { setIsAutoPlay(false); loadFirstFitDemo(); setIsAutoPlay(true); }}
+                    className="flex flex-col px-2 py-1.5 text-zinc-300 hover:bg-zinc-800 rounded-md cursor-pointer outline-none transition-colors group"
+                  >
+                    <span className="text-[10px] font-bold text-emerald-400 group-hover:text-emerald-300">First Fit Allocation</span>
+                    <span className="text-[9px] text-zinc-500 mt-0.5">Will allocate the new process into the first hole large enough (top of memory map).</span>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item 
+                    onClick={() => { setIsAutoPlay(false); loadBestFitDemo(); setIsAutoPlay(true); }}
+                    className="flex flex-col px-2 py-1.5 text-zinc-300 hover:bg-zinc-800 rounded-md cursor-pointer outline-none transition-colors group"
+                  >
+                    <span className="text-[10px] font-bold text-emerald-400 group-hover:text-emerald-300">Best Fit Allocation</span>
+                    <span className="text-[9px] text-zinc-500 mt-0.5">Will scan all holes and place the process perfectly in the second hole, leaving no tiny fragments.</span>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item 
+                    onClick={() => { setIsAutoPlay(false); loadWorstFitDemo(); setIsAutoPlay(true); }}
+                    className="flex flex-col px-2 py-1.5 text-zinc-300 hover:bg-zinc-800 rounded-md cursor-pointer outline-none transition-colors group"
+                  >
+                    <span className="text-[10px] font-bold text-emerald-400 group-hover:text-emerald-300">Worst Fit Allocation</span>
+                    <span className="text-[9px] text-zinc-500 mt-0.5">Will choose the largest available hole, intentionally leaving a large, usable fragment behind.</span>
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Portal>
@@ -230,7 +274,7 @@ export const Header = ({ isAuto, setIsAuto, speed, setSpeed, showGuide, setShowG
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
                 <button 
-                  onClick={() => { setIsAuto(false); reset(); }}
+                  onClick={() => { setIsAutoPlay(false); reset(); }}
                   className="h-full px-3 border border-rose-500/30 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center"
                 >
                   <RotateCcw size={12} />

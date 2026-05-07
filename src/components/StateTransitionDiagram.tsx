@@ -10,7 +10,7 @@ import { Cpu, Clock, CheckCircle2, PlusCircle } from 'lucide-react';
 import { getPidColor } from '../lib/utils';
 
 export const StateTransitionDiagram = () => {
-  const { processes } = useSimulationStore();
+  const { processes, runId } = useSimulationStore();
   
   const getProcessesInState = (state: string) => 
     processes.filter(p => p.state === state);
@@ -40,8 +40,8 @@ export const StateTransitionDiagram = () => {
                <AnimatePresence mode="popLayout">
                  {stageProcesses.map((p) => (
                    <motion.div
-                     key={p.pid}
-                     layoutId={`badge-${p.pid}`}
+                     key={`${runId}-${p.pid}`}
+                     layoutId={`badge-${runId}-${p.pid}`}
                      initial={{ scale: 0.8, opacity: 0 }}
                      animate={{ scale: 1, opacity: 1 }}
                      exit={{ scale: 0.8, opacity: 0 }}

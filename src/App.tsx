@@ -10,7 +10,8 @@ import {
   Terminal as TerminalIcon,
   HelpCircle,
   X,
-  ArrowDown
+  ArrowDown,
+  Activity
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -39,10 +40,10 @@ export default function App() {
   const [showBoot, setShowBoot] = useState(true);
   const [page, setPage] = useState<Page>('landing');
   const { 
-    step, processes, logs, clearLogs, isSimulationComplete
+    step, processes, logs, clearLogs, isSimulationComplete,
+    isAutoPlay, setIsAutoPlay, playbackSpeed, setPlaybackSpeed,
+    demoOverlay, setDemoOverlay
   } = useSimulationStore();
-  const [isAuto, setIsAuto] = useState(false);
-  const [speed, setSpeed] = useState(1);
   const [showHistory, setShowHistory] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [isTelemetryExpanded, setIsTelemetryExpanded] = useState(false);
@@ -52,10 +53,10 @@ export default function App() {
   
   // Auto-stop when complete
   useEffect(() => {
-    if (isSimulationComplete && isAuto) {
-      setIsAuto(false);
+    if (isSimulationComplete && isAutoPlay) {
+      setIsAutoPlay(false);
     }
-  }, [isSimulationComplete, isAuto]);
+  }, [isSimulationComplete, isAutoPlay, setIsAutoPlay]);
   
   // Resizing logic
   useEffect(() => {
@@ -99,13 +100,13 @@ export default function App() {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isAuto) {
+    if (isAutoPlay) {
       interval = setInterval(() => {
         step();
-      }, 800 / speed);
+      }, 800 / playbackSpeed);
     }
     return () => clearInterval(interval);
-  }, [isAuto, step, speed]);
+  }, [isAutoPlay, step, playbackSpeed]);
 
   return (
     <AnimatePresence>
@@ -126,10 +127,6 @@ export default function App() {
             <Tooltip.Provider delayDuration={400}>
               <div className="h-screen w-screen bg-[#020202] text-zinc-400 font-sans selection:bg-indigo-500/30 overflow-hidden flex flex-col transition-all duration-300">
                 <Header 
-                  isAuto={isAuto} 
-                  setIsAuto={setIsAuto} 
-                  speed={speed} 
-                  setSpeed={setSpeed} 
                   showGuide={showGuide} 
                   setShowGuide={setShowGuide}
                   onHome={() => setPage('landing')}
@@ -167,11 +164,11 @@ export default function App() {
 
                   {/* Column 3: System State (320px) */}
                   <div className="w-80 flex-none flex flex-col gap-px border-l border-zinc-800/50 bg-zinc-900/10 overflow-hidden">
-                     <div className="flex-1 bg-[#0c0c0e] flex flex-col overflow-hidden border-b border-zinc-800/50 shadow-inner">
+                     <div className="flex-none bg-[#0c0c0e] flex flex-col border-b border-zinc-800/50 shadow-inner transition-all duration-500">
                         <MemoryMap />
                      </div>
 
-                     <div className="flex-1 bg-[#0c0c0e] flex flex-col overflow-hidden shadow-inner custom-scrollbar overflow-y-auto">
+                     <div className="flex-1 min-h-0 bg-[#0c0c0e] flex flex-col overflow-hidden shadow-inner custom-scrollbar overflow-y-auto">
                         <FileSystemPanel />
                      </div>
                   </div>
@@ -291,6 +288,38 @@ export default function App() {
                      )}
                    </AnimatePresence>
                 </motion.div>
+
+                <AnimatePresence>
+                  {demoOverlay && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-x-0 bottom-10 z-[300] flex items-center justify-center pointer-events-none px-4"
+                    >
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                        className="bg-zinc-900 border border-indigo-500 shadow-[0_0_50px_rgba(79,70,229,0.4)] rounded-2xl max-w-lg w-full p-8 pointer-events-auto flex flex-col gap-4 text-center ring-4 ring-indigo-500/20"
+                      >
+                        <div className="w-16 h-16 rounded-full bg-indigo-500/10 flex items-center justify-center mx-auto mb-2 text-indigo-400">
+                           <Activity size={32} />
+                        </div>
+                        <h2 className="text-xl font-black text-white">{demoOverlay.title}</h2>
+                        <p className="text-sm text-zinc-400 leading-relaxed font-medium">
+                          {demoOverlay.text}
+                        </p>
+                        <button 
+                          onClick={() => { setDemoOverlay(null); setIsAutoPlay(true); }}
+                          className="mt-6 mx-auto h-10 px-8 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(79,70,229,0.4)] hover:scale-105"
+                        >
+                          Continue Simulation
+                        </button>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <AnimatePresence>
                   {showHistory && (

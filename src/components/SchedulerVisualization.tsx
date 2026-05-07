@@ -14,7 +14,7 @@ import { StateTransitionDiagram } from './StateTransitionDiagram';
 import * as Tooltip from '@radix-ui/react-tooltip';
 
 export const SchedulerVisualization = () => {
-  const { ganttLog, clock, getSimulationStats, algorithm } = useSimulationStore();
+  const { ganttLog, clock, getSimulationStats, algorithm, runId } = useSimulationStore();
   const [zoom, setZoom] = React.useState(100); 
   const [isAutoFit, setIsAutoFit] = React.useState(true);
   
@@ -90,11 +90,11 @@ export const SchedulerVisualization = () => {
 
           <div 
             ref={scrollContainerRef}
-            className="w-full bg-slate-950/20 px-4 pt-6 pb-2 mt-2 rounded-2xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar shrink-0 h-[120px]"
+            className="w-full bg-slate-950/20 px-4 pt-6 pb-20 mt-2 rounded-2xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar shrink-0 min-h-[170px]"
           >
             <div 
               className="relative h-12 bg-slate-900/30 border border-slate-800 rounded-xl shadow-xl transition-all duration-300 mt-2 shrink-0"
-              style={{ width: chartWidth, minWidth: '100%', marginBottom: '32px' }}
+              style={{ width: chartWidth, minWidth: '100%', marginBottom: '56px' }}
             >
              {/* Background Grid - Fixed intervals of 10ms */}
              <div className="absolute inset-0 pointer-events-none">
@@ -114,10 +114,11 @@ export const SchedulerVisualization = () => {
                  
                  return (
                    <motion.div
-                     key={`${entry.pid}-${entry.startTime}`}
+                     key={`${runId}-${entry.pid}-${entry.startTime}`}
                      initial={{ opacity: 0, scaleX: 0 }}
                      animate={{ width: `${widthPercent}%`, opacity: 1, scaleX: 1 }}
-                     className={`absolute h-full border-x border-white/5 flex flex-col items-center justify-center ${getPidColor(entry.pid)} group/item transition-colors cursor-help shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] overflow-hidden`}
+                     exit={{ opacity: 0 }}
+                     className={`absolute h-full border-r border-[#0c0c0e]/50 flex flex-col items-center justify-center ${getPidColor(entry.pid)} group/item transition-colors cursor-help overflow-hidden origin-left`}
                      style={{
                        left: `${leftPercent}%`,
                      }}
@@ -167,7 +168,7 @@ export const SchedulerVisualization = () => {
                   const isLast = i === ganttLog.length - 1;
 
                   return (
-                    <React.Fragment key={`${entry.pid}-${entry.startTime}-ts`}>
+                    <React.Fragment key={`${runId}-${entry.pid}-${entry.startTime}-ts`}>
                       {/* Start tick for short blocks or start of the sequence */}
                       {i > 0 && widthPercent > 1 && (
                          <div 
