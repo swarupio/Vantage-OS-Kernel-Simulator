@@ -308,7 +308,7 @@ export const ProcessForm = () => {
           <NumericStepper 
             label="Memory (MB)"
             value={formData.memRequired}
-            min={1}
+            min={16}
             max={256}
             step={16}
             onChange={val => handleInputChange('memRequired', val)}
