@@ -1,0 +1,47 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="112" fill="url(#bg_gradient)"/>
+  
+  <g filter="url(#cpu_glow)">
+    <!-- Main outer chip body -->
+    <rect x="120" y="120" width="272" height="272" rx="32" stroke="white" stroke-width="36" stroke-linejoin="round"/>
+    
+    <!-- Inner core -->
+    <rect x="200" y="200" width="112" height="112" rx="16" stroke="white" stroke-width="36" stroke-linejoin="round"/>
+    
+    <!-- Top Pins -->
+    <path d="M176 120V72" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    <path d="M256 120V72" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    <path d="M336 120V72" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    
+    <!-- Bottom Pins -->
+    <path d="M176 392V440" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    <path d="M256 392V440" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    <path d="M336 392V440" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    
+    <!-- Left Pins -->
+    <path d="M120 176H72" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    <path d="M120 256H72" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    <path d="M120 336H72" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    
+    <!-- Right Pins -->
+    <path d="M392 176H440" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    <path d="M392 256H440" stroke="white" stroke-width="36" stroke-linecap="round"/>
+    <path d="M392 336H440" stroke="white" stroke-width="36" stroke-linecap="round"/>
+  </g>
+
+  <defs>
+    <!-- Rich purple-blue gradient for background -->
+    <linearGradient id="bg_gradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/> <!-- Indigo 600 -->
+      <stop offset="1" stop-color="#7C3AED"/> <!-- Violet 600 -->
+    </linearGradient>
+    
+    <!-- Enhanced glow effect for the CPU circuitry -->
+    <filter id="cpu_glow" x="0" y="0" width="512" height="512" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <!-- Subtle dark shadow for depth -->
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000000" flood-opacity="0.35"/>
+      <!-- Vibrant energetic outer glow -->
+      <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="#C4B5FD" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+</svg>
