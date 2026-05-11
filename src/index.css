@@ -17,16 +17,6 @@
     background-color: #020202;
   }
 
-  /* Hide scrollbars globally but allow scrolling */
-  * {
-    scrollbar-width: none !important; /* Firefox */
-    -ms-overflow-style: none !important; /* IE and Edge */
-  }
-
-  *::-webkit-scrollbar {
-    display: none !important; /* Chrome, Safari, and Opera */
-  }
-
   /* Hide spin buttons for Chrome, Safari, Edge, Opera */
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
@@ -37,5 +27,19 @@
   /* Hide spin buttons for Firefox */
   input[type=number] {
     -moz-appearance: textfield;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar,
+  .custom-scrollbar::-webkit-scrollbar,
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+  .no-scrollbar,
+  .custom-scrollbar,
+  * {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
   }
 }

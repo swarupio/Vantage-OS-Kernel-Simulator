@@ -100,13 +100,13 @@ export default function App() {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isAutoPlay) {
+    if (isAutoPlay && !demoOverlay) {
       interval = setInterval(() => {
         step();
       }, 800 / playbackSpeed);
     }
     return () => clearInterval(interval);
-  }, [isAutoPlay, step, playbackSpeed]);
+  }, [isAutoPlay, step, playbackSpeed, demoOverlay]);
 
   return (
     <AnimatePresence>
@@ -295,7 +295,7 @@ export default function App() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute inset-x-0 bottom-10 z-[300] flex items-center justify-center pointer-events-none px-4"
+                      className="absolute inset-x-0 bottom-10 z-[500] flex items-center justify-center pointer-events-none px-4"
                     >
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}

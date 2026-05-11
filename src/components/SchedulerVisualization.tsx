@@ -82,7 +82,7 @@ export const SchedulerVisualization = () => {
           </div>
        </div>
 
-       <div className="flex-1 overflow-hidden p-3 md:p-6 flex flex-col justify-between min-h-0 shrink-0">
+       <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-6 flex flex-col justify-between min-h-0 shrink-0 custom-scrollbar">
           <div className="flex flex-col gap-2 shrink-0 justify-center">
              <StateTransitionDiagram />
              <ReadyQueueFlow />

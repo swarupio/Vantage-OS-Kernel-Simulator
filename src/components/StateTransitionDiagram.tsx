@@ -36,7 +36,7 @@ export const StateTransitionDiagram = () => {
                 {state.label}
             </div>
             
-            <div className="relative z-10 w-full flex flex-wrap justify-center gap-1 mt-1">
+            <div className="relative z-10 w-full flex flex-wrap justify-center gap-1 mt-1 max-h-[80px] overflow-y-auto no-scrollbar">
                <AnimatePresence mode="popLayout">
                  {stageProcesses.map((p) => (
                    <motion.div

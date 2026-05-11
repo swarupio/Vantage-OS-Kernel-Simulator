@@ -29,6 +29,7 @@ interface SimulationState {
   processes: PCB[];
   readyQueue: string[]; // PIDs
   runningPid: string | null;
+  currentQuantumUsed: number;
   isSwitching: boolean;
   switchRemaining: number;
   isPageFault: boolean;
@@ -100,6 +101,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     processes: [],
     readyQueue: [],
     runningPid: null,
+    currentQuantumUsed: 0,
     isSwitching: false,
     switchRemaining: 0,
     isPageFault: false,
@@ -227,6 +229,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       let nextIsSwitching = isSwitching;
       let nextSwitchRemaining = switchRemaining;
       let nextIsPageFault = false;
+      let nextQuantumUsed = state.currentQuantumUsed;
       let newLogs: LogEntry[] = [];
 
       // 0. Handle Arrival of Processes
@@ -263,6 +266,31 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         }
       });
 
+      // 0.2 Check for preemption
+      if (nextRunningPid && !nextIsSwitching) {
+        const runningP = nextProcesses.find(p => p.pid === nextRunningPid);
+        if (runningP) {
+          let shouldPreempt = false;
+          if (algorithm === 'PRIORITY') {
+            const betterProcess = nextProcesses.find(p => p.state === 'READY' && p.priority < runningP.priority);
+            if (betterProcess) shouldPreempt = true;
+          } else if (algorithm === 'SJF') {
+            const betterProcess = nextProcesses.find(p => p.state === 'READY' && p.remainingTime < runningP.remainingTime);
+            if (betterProcess) shouldPreempt = true;
+          }
+
+          if (shouldPreempt) {
+            runningP.state = 'READY';
+            nextReadyQueue.push(runningP.pid);
+            nextRunningPid = null;
+            newLogs.push(EventLogger.createEntry('SCHEDULER', `Preemption: ${runningP.pid} preempted by a higher priority process.`, runningP.pid));
+            
+            nextIsSwitching = true;
+            nextSwitchRemaining = CONTEXT_SWITCH_MS;
+          }
+        }
+      }
+
       // 1. Handle Context Switching
       if (nextIsSwitching) {
         nextClock += 1;
@@ -296,6 +324,8 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
             clock: nextClock,
             processes: nextProcesses,
             readyQueue: nextReadyQueue,
+            runningPid: nextRunningPid,
+            currentQuantumUsed: nextQuantumUsed,
             isSwitching: nextIsSwitching,
             switchRemaining: nextSwitchRemaining,
             logs: [...newLogs, ...state.logs]
@@ -334,6 +364,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
             processes: nextProcesses,
             readyQueue: nextReadyQueue,
             runningPid: nextRunningPid,
+            currentQuantumUsed: nextQuantumUsed,
             isSwitching: nextIsSwitching,
             switchRemaining: nextSwitchRemaining,
             logs: [...newLogs, ...state.logs]
@@ -345,6 +376,9 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         p.remainingTime -= runTime;
         runTimePassed = runTime;
         nextClock += runTime;
+        if (algorithm === 'RR') {
+          nextQuantumUsed += runTimePassed;
+        }
 
         // Cumulative waiting time
         nextProcesses.forEach(proc => {
@@ -379,7 +413,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
           if (nextReadyQueue.length > 0) {
             set({ nextContextPid: nextReadyQueue[0] });
           }
-        } else if (algorithm === 'RR' && (nextClock % quantum === 0)) {
+        } else if (algorithm === 'RR' && nextQuantumUsed >= quantum) {
           p.state = 'READY';
           nextReadyQueue.push(p.pid);
           nextRunningPid = null;
@@ -452,6 +486,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         }
 
         nextRunningPid = nextReadyQueue.splice(selectedIdx, 1)[0];
+        nextQuantumUsed = 0;
         p.state = 'RUNNING';
         if (p.startTime === undefined) p.startTime = nextClock - (nextClock > 0 ? 0 : 0);
         newLogs.push(EventLogger.createEntry('SCHEDULER', `Dispatcher: ${p.pid} CPU assigned.`, p.pid));
@@ -464,24 +499,58 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       let nextDemoOverlay = state.demoOverlay;
 
       // Pedagogical Demo Pauses
-      if (nextClock === 20 && nextProcesses.some(p => p.pid === 'P007' && p.arrivalTime === 20)) {
+      const p007JustArrived = state.processes.find(p => p.pid === 'P007')?.state === 'NEW' 
+                           && nextProcesses.find(p => p.pid === 'P007')?.state === 'READY';
+      const p007Allocated = nextClock > 30 && state.processes.find(p => p.pid === 'P007')?.allocatedBlocks.length === 0 
+                         && nextProcesses.find(p => p.pid === 'P007')?.allocatedBlocks.length > 0;
+
+      if (nextClock === 30 && nextProcesses.some(p => p.pid === 'P007' && p.arrivalTime === 30)) {
          nextIsAutoPlay = false;
          nextDemoOverlay = {
-            title: `[t=20] Demanding Memory...`,
+            title: `[t=30] Demanding Memory...`,
             text: `P007 just arrived and requires 32MB (2 blocks). The OS will attempt to allocate it using ${state.memoryStrategy.replace('_', ' ')}. Check the memory holes mapped in the Memory Map above right now! Click Step (or Continue) to see where it gets placed.`
          };
-      } else if (nextClock === 21 && nextProcesses.some(p => p.pid === 'P007' && p.arrivalTime === 20)) {
+      } else if (p007Allocated) {
          nextIsAutoPlay = false;
          nextDemoOverlay = {
-            title: `[t=21] Allocation Complete!`,
+            title: `[t=${nextClock}] Allocation Complete!`,
             text: state.memoryStrategy === 'FIRST_FIT' 
-                ? "First Fit scanned from the top and picked the FIRST hole big enough (the 3-block 48MB hole), leaving a 1-block fragment behind."
+                ? "First Fit scanned from the top and found the first available hole that was large enough (a 3-block 48MB hole). It allocated the required 2 blocks (32MB) inside it, leaving a 1-block fragment behind."
                 : state.memoryStrategy === 'BEST_FIT'
                 ? "Best Fit scanned ALL holes and picked the PERFECT 2-block (32MB) hole. This is optimally dense and saves the bigger holes for later!"
                 : "Worst Fit scanned ALL holes and intentionally chose the LARGEST hole (the 9-block 144MB one at the bottom), leaving a huge fully usable fragment behind."
          };
-      } else if (nextClock === 22 && nextProcesses.some(p => p.pid === 'P007' && p.arrivalTime === 20)) {
-         nextDemoOverlay = null;
+      } else if (nextDemoOverlay && nextDemoOverlay.title.includes('Allocation Complete!') && nextClock > 32) {
+         if (state.clock !== nextClock) nextDemoOverlay = null;
+      } else if (nextDemoOverlay && nextDemoOverlay.title.includes('Demanding Memory...') && nextClock > 30) {
+         if (state.clock !== nextClock) nextDemoOverlay = null;
+      } else if (nextDemoOverlay && nextDemoOverlay.title.includes('Balanced Workload') && nextClock > 0) {
+         if (state.clock !== nextClock) nextDemoOverlay = null;
+      }
+
+      // Starvation Demo Overlay
+      const p004JustStarted = state.processes.find(p => p.pid === 'P004')?.state !== 'RUNNING' 
+                           && nextProcesses.find(p => p.pid === 'P004')?.state === 'RUNNING';
+      const p005JustStarted = state.processes.find(p => p.pid === 'P005')?.state !== 'RUNNING' 
+                           && nextProcesses.find(p => p.pid === 'P005')?.state === 'RUNNING';
+
+      if (state.algorithm === 'PRIORITY' && p004JustStarted) {
+         nextIsAutoPlay = false;
+         nextDemoOverlay = {
+            title: `[t=${nextClock}] Starvation in Progress!`,
+            text: `Notice how P002 and P003 arrived at t=0, but P004 just jumped ahead of them because it has Priority 1! If high priority tasks keep arriving, the older tasks will starve.`
+         };
+      } else if (state.algorithm === 'PRIORITY' && p005JustStarted) {
+         nextIsAutoPlay = false;
+         nextDemoOverlay = {
+            title: `[t=${nextClock}] Continued Starvation`,
+            text: `P005 (Priority 2) just jumped the queue too! Poor P002 and P003 are still waiting despite arriving much earlier. This is the classic Priority Scheduling vulnerability.`
+         };
+      } else if (nextDemoOverlay && nextDemoOverlay.title.includes('Starvation')) {
+         // Auto-hide when clock advances explicitly
+         if (state.clock !== nextClock) {
+            nextDemoOverlay = null;
+         }
       }
 
       set({
@@ -489,6 +558,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         processes: nextProcesses,
         readyQueue: nextReadyQueue,
         runningPid: nextRunningPid,
+        currentQuantumUsed: nextQuantumUsed,
         isSwitching: nextIsSwitching,
         switchRemaining: nextSwitchRemaining,
         isPageFault: nextIsPageFault,
@@ -507,7 +577,11 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         processes: [],
         readyQueue: [],
         runningPid: null,
+        isSwitching: false,
+        switchRemaining: 0,
+        isPageFault: false,
         isSimulationComplete: false,
+        demoOverlay: null,
         logs: [EventLogger.createEntry('SYSTEM', 'Simulation reset')],
         ganttLog: [],
       }));
@@ -533,6 +607,8 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       // Starvation trigger: Higher priority processes arriving constantly
       addProcess('P004', 'Critical Task', 1, 20, 64, 10);
       addProcess('P005', 'System Watchdog', 2, 20, 32, 40);
+      addProcess('P006', 'High Pri Worker', 1, 30, 32, 60);
+      addProcess('P007', 'Interrupt Handler', 1, 20, 16, 75);
 
       // Create demo files
       createFile('kernel_boot.log', 'P001');
@@ -565,15 +641,20 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
     },
 
     loadBalancedDemo: () => {
-      const { reset, addProcess, setAlgorithm, setQuantum } = get();
+      const { reset, addProcess, setAlgorithm, setQuantum, setDemoOverlay } = get();
       reset();
       setAlgorithm('RR');
       setQuantum(4);
       
-      addProcess('P001', 'Web Server', 4, 70, 64, 0);
-      addProcess('P002', 'Cache Service', 3, 50, 32, 2);
+      addProcess('P001', 'Web Server', 5, 70, 64, 0);
+      addProcess('P002', 'Cache Service', 5, 50, 32, 2);
       addProcess('P003', 'UI Engine', 5, 90, 128, 5);
       
+      setDemoOverlay({
+        title: "Balanced Workload",
+        text: "Three standard processes using Round Robin. Notice how they share CPU time equally (Quantum = 4ms)."
+      });
+
       set(s => ({
         logs: [EventLogger.createEntry('SYSTEM', 'Demo: Balanced Workload loaded'), ...s.logs]
       }));
@@ -594,12 +675,12 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       // Memory holes will be: [3 blocks], [P002], [2 blocks], [P004], [4 blocks] + [5 blocks unallocated].
       // Hole 3 and Unallocated combine into a 9-block hole at the bottom.
       // First Fit should place P007 in the FIRST hole (the 3-block one), leaving a 1-block fragment.
-      addProcess('P007', 'New Process (Wait for t=20)', 4, 60, 32, 20);
+      addProcess('P007', 'New Process (Wait for t=30)', 4, 60, 32, 30);
       
       set(s => ({
         logs: [
           EventLogger.createEntry('SYSTEM', 'Demo: First Fit Strategy loaded.'),
-          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=20! First Fit will grab the FIRST hole big enough.'),
+          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=30! First Fit will grab the FIRST hole big enough.'),
           ...s.logs
         ]
       }));
@@ -618,12 +699,12 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       
       // Arrives right after P001, P003, and P005 finish.
       // Best Fit should place it in the exact-matching 2-block hole (mid), leaving the 3-block hole intact.
-      addProcess('P007', 'New Process (Wait for t=20)', 4, 60, 32, 20);
+      addProcess('P007', 'New Process (Wait for t=30)', 4, 60, 32, 30);
       
       set(s => ({
         logs: [
           EventLogger.createEntry('SYSTEM', 'Demo: Best Fit Strategy loaded.'),
-          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=20! Best Fit will grab the SMALLEST hole that fits exactly.'),
+          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=30! Best Fit will grab the SMALLEST hole that fits exactly.'),
           ...s.logs
         ]
       }));
@@ -642,12 +723,12 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       
       // Arrives right after P001, P003, and P005 finish.
       // Worst Fit should place it in the largest hole (9-block combined hole at bottom).
-      addProcess('P007', 'New Process (Wait for t=20)', 4, 60, 32, 20);
+      addProcess('P007', 'New Process (Wait for t=30)', 4, 60, 32, 30);
       
       set(s => ({
         logs: [
           EventLogger.createEntry('SYSTEM', 'Demo: Worst Fit Strategy loaded.'),
-          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=20! Worst Fit will grab the LARGEST hole, leaving the biggest possible leftovers.'),
+          EventLogger.createEntry('SYSTEM', 'Tip: Watch memory at t=30! Worst Fit will grab the LARGEST hole, leaving the biggest possible leftovers.'),
           ...s.logs
         ]
       }));
