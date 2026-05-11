@@ -51,8 +51,8 @@ export const SchedulerVisualization = () => {
           <div className="flex items-center gap-3">
              <Activity size={18} className="text-indigo-500" />
              <div className="flex flex-col">
-               <span className="text-sm font-black text-white uppercase tracking-tight">Kernel Dispatcher Trace</span>
-               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none mt-1">CPU Execution Gantt Chart</span>
+               <span className="text-sm font-black text-zinc-100 uppercase tracking-tight">Kernel Dispatcher Trace</span>
+               <span className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest leading-none mt-1">CPU Execution Gantt Chart</span>
              </div>
           </div>
           
@@ -82,20 +82,20 @@ export const SchedulerVisualization = () => {
           </div>
        </div>
 
-       <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-6 flex flex-col min-h-0 shrink-0 custom-scrollbar">
-          <div className="flex flex-col gap-4 shrink-0">
+       <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-4 flex flex-col min-h-0 custom-scrollbar">
+          <div className="flex flex-col gap-2 shrink-0">
              <StateTransitionDiagram />
              <ReadyQueueFlow />
           </div>
 
-          <div className="flex-1 flex flex-col min-h-[170px] mt-6">
+          <div className="flex flex-col mt-2 shrink-0">
             <div 
               ref={scrollContainerRef}
-              className="w-full bg-slate-950/20 px-4 pt-6 pb-20 rounded-2xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar shrink-0"
+              className="w-full bg-slate-950/20 px-2 pt-4 pb-2 rounded-xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar"
             >
             <div 
               className="relative h-12 bg-slate-900/30 border border-slate-800 rounded-xl shadow-xl transition-all duration-300 mt-2 shrink-0"
-              style={{ width: chartWidth, minWidth: '100%', marginBottom: '56px' }}
+              style={{ width: chartWidth, minWidth: '100%', marginBottom: '36px' }}
             >
              {/* Background Grid - Fixed intervals of 10ms */}
              <div className="absolute inset-0 pointer-events-none">

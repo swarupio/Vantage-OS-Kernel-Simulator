@@ -85,7 +85,7 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
                       onClick={() => { setIsAutoPlay(false); setAlgorithm(algo); }}
                       className={`px-3 flex items-center h-full rounded text-[9px] font-black uppercase transition-all duration-200 ${
                         algorithm === algo 
-                        ? 'bg-indigo-600 text-slate-200 shadow-md border border-indigo-500/20' 
+                        ? 'bg-indigo-600 text-white shadow-md border border-indigo-500/20' 
                         : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
                       }`}
                     >
@@ -113,7 +113,7 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
                         onClick={() => { setMemoryStrategy(strat); }}
                         className={`px-3 flex items-center h-full rounded text-[8px] font-black uppercase transition-all duration-200 ${
                           memoryStrategy === strat 
-                          ? 'bg-emerald-600 text-slate-200 shadow-[0_0_8px_rgba(16,185,129,0.3)] border border-emerald-500/20' 
+                          ? 'bg-emerald-600 text-white shadow-[0_0_8px_rgba(16,185,129,0.3)] border border-emerald-500/20' 
                           : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
                         }`}
                       >
@@ -165,7 +165,7 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
                <div className="flex bg-zinc-900/50 p-0.5 rounded-lg border border-zinc-800/50 gap-0.5 h-8 items-stretch">
                  <button 
                    onClick={() => setIsAutoPlay(!isAutoPlay)}
-                   className={`flex items-center gap-2 px-3 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${isAutoPlay ? 'bg-rose-600 text-slate-200 shadow-md' : 'bg-emerald-600 text-slate-200 hover:bg-emerald-500 shadow-md shadow-emerald-900/20'}`}
+                   className={`flex items-center gap-2 px-3 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${isAutoPlay ? 'bg-rose-600 text-white shadow-md' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-md shadow-emerald-900/20'}`}
                  >
                    {isAutoPlay ? <Activity size={10} /> : <Play size={10} />}
                    {isAutoPlay ? 'STOP' : 'RUN'}
@@ -173,7 +173,7 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
                  
                  <button 
                   onClick={cycleSpeed}
-                  className={`flex items-center px-2 rounded-md text-[9px] font-black transition-all ${playbackSpeed > 1 ? 'bg-indigo-600 text-slate-200' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
+                  className={`flex items-center px-2 rounded-md text-[9px] font-black transition-all ${playbackSpeed > 1 ? 'bg-indigo-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'}`}
                  >
                    {playbackSpeed}x
                  </button>

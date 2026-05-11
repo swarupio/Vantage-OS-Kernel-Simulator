@@ -24,19 +24,19 @@ export const StateTransitionDiagram = () => {
   ];
 
   return (
-    <div className="grid grid-cols-5 gap-2 p-2 bg-black/40 border border-zinc-800/50 rounded-2xl">
+    <div className="grid grid-cols-5 gap-1 p-1.5 bg-black/40 border border-zinc-800/50 rounded-xl">
       {states.map((state) => {
         const stageProcesses = getProcessesInState(state.id);
         const hasProcesses = stageProcesses.length > 0;
 
         return (
-          <div key={state.id} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-zinc-900/30 border border-white/5 relative overflow-hidden group min-h-[60px]">
-            <div className={`flex items-center gap-1.5 font-black text-[7px] uppercase tracking-widest ${state.color} z-10`}>
+          <div key={state.id} className="flex flex-col items-center gap-1 p-1.5 rounded-lg bg-zinc-900/30 border border-white/5 relative overflow-hidden group min-h-[48px]">
+            <div className={`flex items-center gap-1 font-black text-[7px] uppercase tracking-widest ${state.color} z-10`}>
                 {state.icon}
                 {state.label}
             </div>
             
-            <div className="relative z-10 w-full flex flex-wrap justify-center gap-1 mt-1 max-h-[80px] overflow-y-auto no-scrollbar">
+            <div className="relative z-10 w-full flex flex-wrap justify-center gap-1 mt-0.5">
                <AnimatePresence mode="popLayout">
                  {stageProcesses.map((p) => (
                    <motion.div

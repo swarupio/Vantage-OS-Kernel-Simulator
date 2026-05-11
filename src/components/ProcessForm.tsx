@@ -44,7 +44,7 @@ const NumericStepper = ({ label, value, min = 0, max = Infinity, step = 1, onCha
 
   return (
     <div className={`space-y-1 transition-all duration-300 ${isDimmed ? 'opacity-30 grayscale saturate-0' : 'opacity-100'}`}>
-      <label className={`text-[8px] font-black uppercase mb-1 block transition-colors duration-300 ${isHighImportance ? 'text-zinc-200' : 'text-zinc-600'}`}>
+      <label className={`text-[9px] font-black uppercase tracking-widest mb-1 block transition-colors duration-300 ${isHighImportance ? 'text-indigo-200' : 'text-zinc-400'}`}>
         {label}
         {isHighImportance && <span className="ml-1 text-indigo-500 animate-pulse">●</span>}
       </label>
@@ -122,7 +122,7 @@ export const ProcessForm = () => {
       <div className="grid grid-cols-2 gap-2">
         <div className="col-span-2">
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Quick Profiles</label>
+            <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Quick Profiles</label>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
                 <div className="flex items-center gap-1.5 cursor-help group bg-zinc-900/50 px-2 py-0.5 rounded-full border border-zinc-800/50">
@@ -241,7 +241,7 @@ export const ProcessForm = () => {
             </Tooltip.Root>
           </div>
 
-          <label className="text-[8px] font-black text-zinc-600 uppercase mb-1 block">Process ID / Name</label>
+          <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1 block mt-2">Process ID / Name</label>
           <input 
             type="text" 
             value={formData.name}

@@ -30,7 +30,7 @@ export const PCBTable = () => {
             <Tooltip.Provider key={h.label}>
               <Tooltip.Root>
                 <Tooltip.Trigger asChild>
-                  <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest cursor-help hover:text-zinc-400 truncate">
+                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest cursor-help hover:text-zinc-300 truncate">
                     {h.label}
                   </span>
                 </Tooltip.Trigger>

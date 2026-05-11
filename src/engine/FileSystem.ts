@@ -19,8 +19,9 @@ export class FileSystem {
       return 'DUPLICATE_FILENAME';
     }
 
+    const maxId = this.inodes.length > 0 ? Math.max(...this.inodes.map(i => i.id)) : -1;
     const newInode: Inode = {
-      id: this.inodes.length,
+      id: maxId + 1,
       filename,
       size: 0,
       blocks: [],
@@ -37,14 +38,21 @@ export class FileSystem {
     const inode = this.inodes.find(i => i.id === inodeId);
     if (!inode) return false;
 
-    // Release old blocks
+    const sizeInBytes = new Blob([content]).size;
+    const blocksNeeded = Math.ceil(sizeInBytes / this.blockSize) || 1;
+
+    // Temporarily count free blocks ignoring current file's blocks to see if we can allocate
+    const availableBlocks = this.dataBlocks.filter((used, idx) => !used || inode.blocks.includes(idx)).length;
+    
+    if (availableBlocks < blocksNeeded) {
+      return 'NO_FREE_BLOCKS';
+    }
+
+    // Now safely release old blocks
     inode.blocks.forEach(b => {
       this.dataBlocks[b] = false;
     });
     inode.blocks = [];
-
-    const sizeInBytes = new Blob([content]).size;
-    const blocksNeeded = Math.ceil(sizeInBytes / this.blockSize) || 1;
 
     // Find free blocks
     const freeIndices: number[] = [];
@@ -53,10 +61,6 @@ export class FileSystem {
         freeIndices.push(i);
         if (freeIndices.length === blocksNeeded) break;
       }
-    }
-
-    if (freeIndices.length < blocksNeeded) {
-      return 'NO_FREE_BLOCKS';
     }
 
     // Allocate

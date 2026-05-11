@@ -17,7 +17,7 @@ export const MemoryMap = () => {
 
   return (
     <div className={`flex flex-col relative w-full transition-all duration-700 ${isMemoryDemoActive ? 'ring-2 ring-indigo-500 shadow-[0_0_30px_rgba(99,102,241,0.3)] z-[400]' : ''}`}>
-        <div className="p-4 border-b border-slate-800 bg-slate-900/50 flex flex-col gap-1">
+        <div className="p-4 border-b border-slate-800 bg-[#0f172a] flex flex-col gap-1 shadow-md">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-black uppercase tracking-widest text-slate-300 flex items-center gap-2">
                <Database size={14} className="text-amber-500" /> Physical Page Map (MMU)

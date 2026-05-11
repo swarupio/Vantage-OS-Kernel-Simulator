@@ -19,11 +19,10 @@ export const FileSystemPanel = () => {
   const [selectedInode, setSelectedInode] = useState<number | null>(null);
 
   const handleCreate = () => {
-    if (newFile) {
-      createFile(newFile, runningPid || 'SYSTEM');
-      if (runningPid) triggerIO(runningPid);
-      setNewFile('');
-    }
+    const fileNameToCreate = newFile.trim() || `data_${Math.floor(Math.random() * 9000) + 1000}.bin`;
+    createFile(fileNameToCreate, runningPid || 'SYSTEM');
+    if (runningPid) triggerIO(runningPid);
+    setNewFile('');
   };
 
   const handleSave = () => {
@@ -60,7 +59,7 @@ export const FileSystemPanel = () => {
   const fsFrag = calculateFragmentation();
 
   return (
-    <div className="bg-[#0c0c0e] border border-zinc-800/50 rounded-xl shadow-md overflow-hidden flex flex-col transition-all min-h-[460px] text-zinc-400">
+    <div className="bg-[#0c0c0e] rounded-xl flex flex-col transition-all text-zinc-400">
         <div className="px-6 py-5 border-b border-zinc-800/80 bg-[#0c0c0e] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
              <FileText size={18} className="text-sky-400 shrink-0" />
@@ -72,7 +71,7 @@ export const FileSystemPanel = () => {
              </span>
           </div>
         </div>
-       <div className="flex-1 flex flex-col no-scrollbar">
+       <div className="no-scrollbar">
           {/* File Operations */}
           <div className="p-6 space-y-6">
              <div className="flex items-center gap-2 p-1.5 bg-zinc-950 border border-zinc-800 rounded-xl shadow-inner focus-within:ring-2 focus-within:ring-sky-500/30 transition-all overflow-hidden">
@@ -90,7 +89,7 @@ export const FileSystemPanel = () => {
                   DISPATCH
                 </button>
              </div>
-             <div className="grid grid-cols-1 gap-3 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+             <div className="grid grid-cols-1 gap-3 pr-1">
                 <AnimatePresence mode="popLayout">
                   {directory.map(f => (
                     <motion.div 
@@ -124,7 +123,13 @@ export const FileSystemPanel = () => {
                           <FilePlus size={16} />
                         </button>
                         <button 
-                          onClick={(e) => { e.stopPropagation(); deleteFile(f.id); }}
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            deleteFile(f.id); 
+                            if (selectedInode === f.id) setSelectedInode(null);
+                            if (hoveredInode === f.id) setHoveredInode(null);
+                            if (editingFile === f.id) setEditingFile(null);
+                          }}
                           className="p-2 hover:bg-rose-500/10 rounded-lg text-zinc-500 hover:text-rose-400 border border-transparent hover:border-rose-500/20 transition-all"
                           title="Purge Inode"
                         >
@@ -256,9 +261,9 @@ export const FileSystemPanel = () => {
           </AnimatePresence>
 
           {/* Block Bitmap View */}
-          <div className="mt-auto p-6 bg-zinc-950 border-t border-zinc-800/80">
+          <div className="p-6 bg-zinc-950 border-t border-zinc-800/80">
              <div className="flex items-center justify-between mb-5">
-                <span className="text-[10px] uppercase font-black text-zinc-600 tracking-widest leading-none">Physical Sector Cluster Map</span>
+                <span className="text-[10px] uppercase font-black text-zinc-400 tracking-widest leading-none">Physical Sector Cluster Map</span>
                 <div className="flex items-center gap-5">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-sky-500 rounded-full shadow-[0_0_8px_rgba(14,165,233,0.5)]" />
@@ -272,13 +277,13 @@ export const FileSystemPanel = () => {
              </div>
              <div className="grid grid-cols-16 gap-1 group">
                {bitmap.map((used, i) => {
-                 const isPritedByHover = activeBlocks.includes(i);
+                 const isPointedByHover = activeBlocks.includes(i);
                  return (
                    <div 
                      key={i} 
                      className={`aspect-square rounded-sm transition-all duration-300 ${
                        used 
-                         ? isPritedByHover 
+                         ? isPointedByHover 
                            ? 'bg-rose-500 scale-125 z-10 shadow-lg shadow-rose-900/50 ring-1 ring-white/10' 
                            : 'bg-sky-600 scale-110 shadow-sm shadow-sky-900/50 ring-1 ring-white/5' 
                          : 'bg-zinc-900 hover:bg-zinc-800'

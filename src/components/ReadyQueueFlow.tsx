@@ -13,10 +13,10 @@ export const ReadyQueueFlow = () => {
   const { readyQueue, runningPid, isSwitching, nextContextPid, runId } = useSimulationStore();
   
   return (
-    <div className="flex items-center gap-1 h-12 px-2 bg-black/40 rounded-xl border border-zinc-800/50 overflow-hidden relative">
-      <div className="absolute left-2 top-1 text-[7px] font-black text-zinc-600 uppercase tracking-widest pointer-events-none">READY QUEUE</div>
+    <div className="flex items-center gap-1 h-12 px-2 bg-black/40 rounded-xl border border-zinc-800/50 overflow-hidden relative shrink-0">
+      <div className="absolute left-2 top-1 text-[7px] font-black text-zinc-500 uppercase tracking-widest pointer-events-none">READY QUEUE</div>
       
-      <div className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar">
+      <div className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar pt-2">
         <AnimatePresence mode="popLayout">
           {readyQueue.map((pid) => (
             <motion.div

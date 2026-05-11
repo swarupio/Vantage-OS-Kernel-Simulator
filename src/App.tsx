@@ -141,8 +141,8 @@ export default function App() {
                     
                     <div className="flex-1 overflow-hidden flex flex-col relative bg-[#0c0c0e]">
                       <div className="p-3 border-y border-zinc-800/50 flex items-center justify-between shrink-0 z-20">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
-                          <Layers size={12} className="text-zinc-500" /> PCB Registry
+                        <span className="text-[11px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+                          <Layers size={14} className="text-zinc-500" /> PCB Registry
                         </span>
                         <button 
                           onClick={() => setShowHistory(true)}
@@ -163,12 +163,12 @@ export default function App() {
                   </div>
 
                   {/* Column 3: System State (320px) */}
-                  <div className="w-80 flex-none flex flex-col gap-px border-l border-zinc-800/50 bg-zinc-900/10 overflow-hidden">
-                     <div className="flex-none bg-[#0c0c0e] flex flex-col border-b border-zinc-800/50 shadow-inner transition-all duration-500">
+                  <div className="w-[340px] flex-none h-full min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col border-l border-zinc-800/50 bg-[#0c0c0e]">
+                     <div className="flex-none shrink-0 border-b border-zinc-800/50 z-10 transition-all duration-500">
                         <MemoryMap />
                      </div>
 
-                     <div className="flex-1 min-h-0 bg-[#0c0c0e] flex flex-col overflow-hidden shadow-inner custom-scrollbar overflow-y-auto">
+                     <div className="flex-none shrink-0 min-h-min pb-8">
                         <FileSystemPanel />
                      </div>
                   </div>
