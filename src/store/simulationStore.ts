@@ -266,31 +266,6 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
         }
       });
 
-      // 0.2 Check for preemption
-      if (nextRunningPid && !nextIsSwitching) {
-        const runningP = nextProcesses.find(p => p.pid === nextRunningPid);
-        if (runningP) {
-          let shouldPreempt = false;
-          if (algorithm === 'PRIORITY') {
-            const betterProcess = nextProcesses.find(p => p.state === 'READY' && p.priority < runningP.priority);
-            if (betterProcess) shouldPreempt = true;
-          } else if (algorithm === 'SJF') {
-            const betterProcess = nextProcesses.find(p => p.state === 'READY' && p.remainingTime < runningP.remainingTime);
-            if (betterProcess) shouldPreempt = true;
-          }
-
-          if (shouldPreempt) {
-            runningP.state = 'READY';
-            nextReadyQueue.push(runningP.pid);
-            nextRunningPid = null;
-            newLogs.push(EventLogger.createEntry('SCHEDULER', `Preemption: ${runningP.pid} preempted by a higher priority process.`, runningP.pid));
-            
-            nextIsSwitching = true;
-            nextSwitchRemaining = CONTEXT_SWITCH_MS;
-          }
-        }
-      }
-
       // 1. Handle Context Switching
       if (nextIsSwitching) {
         nextClock += 1;
@@ -595,7 +570,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => {
       
       const demos = [
         { name: 'Init', priority: 5, burst: 30, mem: 32, arrival: 0, io: false },
-        { name: 'Browser', priority: 6, burst: 60, mem: 96, arrival: 0, io: true },
+        { name: 'Browser', priority: 6, burst: 60, mem: 96, arrival: 0, io: false },
         { name: 'Background Service', priority: 8, burst: 80, mem: 32, arrival: 0, io: false },
       ];
 

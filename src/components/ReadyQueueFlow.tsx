@@ -25,7 +25,7 @@ export const ReadyQueueFlow = () => {
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -20, opacity: 0 }}
-              className={`min-w-[40px] h-6 rounded flex items-center justify-center text-[9px] font-bold border border-white/10 ${getPidColor(pid)} text-white shadow-sm`}
+              className={`min-w-[40px] h-6 rounded flex items-center justify-center text-[9px] font-bold border border-black/10 ${getPidColor(pid)} text-slate-900 shadow-sm`}
             >
               {pid}
             </motion.div>
@@ -49,7 +49,7 @@ export const ReadyQueueFlow = () => {
               key={`${runId}-${runningPid}`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className={`w-14 h-6 rounded flex items-center justify-center text-[9px] font-black ${getPidColor(runningPid)} text-white shadow-lg shadow-indigo-500/20 z-10 border border-white/20`}
+              className={`w-14 h-6 rounded flex items-center justify-center text-[9px] font-black ${getPidColor(runningPid)} text-slate-950 shadow-lg shadow-indigo-500/20 z-10 border border-black/20`}
             >
               RUNNING
             </motion.div>

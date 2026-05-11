@@ -71,10 +71,10 @@ export const PCBTable = () => {
                    </Tooltip.Root>
                  )}
               </div>
-              <span className="text-[10px] font-mono font-bold text-zinc-500">{p.priority}</span>
-              <span className="text-[10px] font-mono font-bold text-zinc-500">{p.burstTime}</span>
-              <span className="text-[10px] font-mono font-bold text-zinc-500">{p.arrivalTime}</span>
-              <span className="text-[10px] font-mono font-bold text-zinc-500">{p.memRequired}M</span>
+              <span className="text-[10px] font-mono font-bold text-zinc-100">{p.priority}</span>
+              <span className="text-[10px] font-mono font-bold text-zinc-100">{p.burstTime}</span>
+              <span className="text-[10px] font-mono font-bold text-zinc-100">{p.arrivalTime}</span>
+              <span className="text-[10px] font-mono font-bold text-zinc-100">{p.memRequired}M</span>
               <div className="flex items-center gap-1.5 justify-end">
                  <span className={`text-[8px] font-black px-1.5 rounded-sm uppercase tracking-tighter leading-none py-0.5 ${
                     p.state === 'RUNNING' ? 'bg-indigo-600 text-white shadow-[0_0_8px_rgba(99,102,241,0.4)]' :

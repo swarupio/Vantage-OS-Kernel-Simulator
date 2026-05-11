@@ -45,7 +45,7 @@ export const StateTransitionDiagram = () => {
                      initial={{ scale: 0.8, opacity: 0 }}
                      animate={{ scale: 1, opacity: 1 }}
                      exit={{ scale: 0.8, opacity: 0 }}
-                     className={`px-1.5 py-0.5 rounded text-[8px] font-black text-white shadow-sm ${getPidColor(p.pid)} border border-white/10`}
+                     className={`px-1.5 py-0.5 rounded text-[8px] font-black text-slate-950 shadow-sm ${getPidColor(p.pid)} border border-black/10`}
                    >
                      {p.pid.replace('Process-', '')}
                    </motion.div>

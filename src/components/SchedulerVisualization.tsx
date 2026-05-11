@@ -82,16 +82,17 @@ export const SchedulerVisualization = () => {
           </div>
        </div>
 
-       <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-6 flex flex-col justify-between min-h-0 shrink-0 custom-scrollbar">
-          <div className="flex flex-col gap-2 shrink-0 justify-center">
+       <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-6 flex flex-col min-h-0 shrink-0 custom-scrollbar">
+          <div className="flex flex-col gap-4 shrink-0">
              <StateTransitionDiagram />
              <ReadyQueueFlow />
           </div>
 
-          <div 
-            ref={scrollContainerRef}
-            className="w-full bg-slate-950/20 px-4 pt-6 pb-20 mt-2 rounded-2xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar shrink-0 min-h-[170px]"
-          >
+          <div className="flex-1 flex flex-col min-h-[170px] mt-6">
+            <div 
+              ref={scrollContainerRef}
+              className="w-full bg-slate-950/20 px-4 pt-6 pb-20 rounded-2xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar shrink-0"
+            >
             <div 
               className="relative h-12 bg-slate-900/30 border border-slate-800 rounded-xl shadow-xl transition-all duration-300 mt-2 shrink-0"
               style={{ width: chartWidth, minWidth: '100%', marginBottom: '56px' }}
@@ -130,7 +131,7 @@ export const SchedulerVisualization = () => {
                       
                       {/* Show Label */}
                       {widthPercent > 0.5 && (
-                        <span className="text-[10px] font-black text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] truncate px-0.5 font-mono select-none pointer-events-none leading-none z-10">
+                        <span className="text-[10px] font-black text-slate-950 font-mono select-none pointer-events-none leading-none z-10 truncate px-0.5" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
                           {widthPercent > 10 ? (entry.pid === 'SWITCHING' ? 'SWITCH' : entry.pid) : 
                            (widthPercent > 4 ? (entry.pid === 'SWITCHING' ? 'S' : entry.pid.replace('Process-', 'P').replace('P00', 'P')) : 
                             (entry.pid === 'SWITCHING' ? '' : entry.pid.replace(/[^0-9]/g, '')))}
@@ -206,6 +207,7 @@ export const SchedulerVisualization = () => {
           </div>
         </div>
        </div>
+      </div>
 
        <div className="px-8 py-4 bg-slate-900/80 border-t border-slate-800 grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
           <StatBox 
