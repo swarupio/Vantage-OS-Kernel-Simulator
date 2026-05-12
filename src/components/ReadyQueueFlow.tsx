@@ -13,10 +13,10 @@ export const ReadyQueueFlow = () => {
   const { readyQueue, runningPid, isSwitching, nextContextPid, runId } = useSimulationStore();
   
   return (
-    <div className="flex items-center gap-1 h-12 px-2 bg-black/40 rounded-xl border border-zinc-800/50 overflow-hidden relative shrink-0">
-      <div className="absolute left-2 top-1 text-[7px] font-black text-zinc-500 uppercase tracking-widest pointer-events-none">READY QUEUE</div>
+    <div className="flex items-center gap-1 h-12 2xl:min-h-[5rem] px-2 bg-black/40 rounded-xl border border-zinc-800/50 overflow-hidden relative shrink-0">
+      <div className="absolute left-2 top-1 2xl:top-2 text-[7px] 2xl:text-[9px] font-black text-zinc-500 uppercase tracking-widest pointer-events-none">READY QUEUE</div>
       
-      <div className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar pt-2">
+      <div className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar pt-2 2xl:pt-6 h-full">
         <AnimatePresence mode="popLayout">
           {readyQueue.map((pid) => (
             <motion.div
@@ -41,7 +41,7 @@ export const ReadyQueueFlow = () => {
         <ArrowRight size={14} className="text-zinc-700" />
       </div>
 
-      <div className="w-20 h-8 flex items-center justify-center relative">
+      <div className="w-20 h-8 2xl:h-12 flex items-center justify-center relative">
         <div className="absolute inset-0 bg-indigo-500/5 border border-indigo-500/20 rounded-lg" />
         <AnimatePresence mode="wait">
           {runningPid ? (
@@ -49,7 +49,7 @@ export const ReadyQueueFlow = () => {
               key={`${runId}-${runningPid}`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className={`w-14 h-6 rounded flex items-center justify-center text-[9px] font-black ${getPidColor(runningPid)} text-slate-950 shadow-lg shadow-indigo-500/20 z-10 border border-black/20`}
+              className={`w-14 2xl:w-16 h-6 2xl:h-8 rounded flex items-center justify-center text-[9px] 2xl:text-[11px] font-black ${getPidColor(runningPid)} text-slate-950 shadow-lg shadow-indigo-500/20 z-10 border border-black/20`}
             >
               RUNNING
             </motion.div>

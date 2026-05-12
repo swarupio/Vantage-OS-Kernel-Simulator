@@ -46,8 +46,8 @@ export const SchedulerVisualization = () => {
   }, [clock, isAutoFit, pixelsPerMs]);
   
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#0c0c0e]">
-       <div className="px-6 py-4 border-b border-zinc-800 bg-zinc-900/50 flex items-center justify-between shrink-0">
+    <div className="flex-1 flex flex-col h-full min-h-0 bg-slate-900/40">
+       <div className="px-6 py-4 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
              <Activity size={18} className="text-indigo-500" />
              <div className="flex flex-col">
@@ -82,19 +82,19 @@ export const SchedulerVisualization = () => {
           </div>
        </div>
 
-       <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
-          <div className="p-4 flex flex-col gap-2 shrink-0">
+       <div className="flex-1 overflow-hidden p-2 md:p-4 flex flex-col min-h-0">
+          <div className="flex flex-col gap-2 shrink-0">
              <StateTransitionDiagram />
              <ReadyQueueFlow />
           </div>
 
-          <div className="px-4 flex flex-col mt-2 shrink-0">
+          <div className="flex-1 flex flex-col mt-2 min-h-0 2xl:min-h-[350px]">
             <div 
               ref={scrollContainerRef}
-              className="w-full px-2 pt-4 pb-2 rounded-xl border border-zinc-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar bg-black/20"
+              className="flex-1 w-full flex flex-col bg-slate-950/20 px-2 pt-4 pb-2 rounded-xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar"
             >
             <div 
-              className="relative h-12 bg-zinc-900/30 border border-zinc-800/50 rounded-xl transition-all duration-300 mt-2 shrink-0"
+              className="relative flex-1 bg-slate-900/30 border border-slate-800 rounded-xl shadow-xl transition-all duration-300 mt-2 shrink-0 min-h-[3rem]"
               style={{ width: chartWidth, minWidth: '100%', marginBottom: '36px' }}
             >
              {/* Background Grid - Fixed intervals of 10ms */}
@@ -102,7 +102,7 @@ export const SchedulerVisualization = () => {
                {Array.from({ length: Math.ceil(maxDisplayTime / 10) + 1 }).map((_, i) => (
                   <div 
                     key={i} 
-                    className="absolute top-0 bottom-0 border-r border-zinc-800/20" 
+                    className="absolute top-0 bottom-0 border-r border-slate-800/20" 
                     style={{ left: `${(i * 10 / maxDisplayTime) * 100}%` }}
                   />
                 ))}
@@ -124,14 +124,14 @@ export const SchedulerVisualization = () => {
                        left: `${leftPercent}%`,
                      }}
                    >
-                      <div className="opacity-0 group-hover/item:opacity-100 absolute -top-12 bg-zinc-900 text-white text-[9px] px-3 py-2 rounded-lg shadow-2xl whitespace-nowrap pointer-events-none z-[60] transition-all font-bold uppercase tracking-widest border border-zinc-700 flex flex-col gap-0.5">
+                      <div className="opacity-0 group-hover/item:opacity-100 absolute -top-12 bg-slate-900 text-white text-[9px] px-3 py-2 rounded-lg shadow-2xl whitespace-nowrap pointer-events-none z-[60] transition-all font-bold uppercase tracking-widest border border-slate-700 flex flex-col gap-0.5">
                         <span className="text-indigo-400">{entry.pid === 'SWITCHING' ? 'Context Switch' : entry.pid}</span>
                         <span className="text-[8px] text-zinc-400">{entry.startTime}ms → {entry.startTime + entry.duration}ms ({entry.duration}ms)</span>
                       </div>
                       
                       {/* Show Label */}
                       {widthPercent > 0.5 && (
-                        <span className="text-[10px] font-black text-zinc-950 font-mono select-none pointer-events-none leading-none z-10 truncate px-0.5" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
+                        <span className="text-[10px] font-black text-slate-950 font-mono select-none pointer-events-none leading-none z-10 truncate px-0.5" style={{ textShadow: '0 1px 2px rgba(255,255,255,0.3)' }}>
                           {widthPercent > 10 ? (entry.pid === 'SWITCHING' ? 'SWITCH' : entry.pid) : 
                            (widthPercent > 4 ? (entry.pid === 'SWITCHING' ? 'S' : entry.pid.replace('Process-', 'P').replace('P00', 'P')) : 
                             (entry.pid === 'SWITCHING' ? '' : entry.pid.replace(/[^0-9]/g, '')))}
@@ -155,8 +155,8 @@ export const SchedulerVisualization = () => {
                    className="absolute flex flex-col items-center"
                    style={{ left: '0%' }}
                 >
-                  <div className="w-px h-2 bg-zinc-400" />
-                  <span className="text-[8px] font-mono text-zinc-500 font-bold mt-0.5">0ms</span>
+                  <div className="w-px h-2 bg-slate-400" />
+                  <span className="text-[8px] font-mono text-slate-400 font-bold mt-0.5">0ms</span>
                 </div>
 
                 {/* Transition markers - Show both start and end times clearly */}
@@ -176,8 +176,8 @@ export const SchedulerVisualization = () => {
                            className="absolute flex flex-col items-center pointer-events-none opacity-40"
                            style={{ left: `${leftStart}%` }}
                          >
-                           <div className="w-px h-1 bg-zinc-600" />
-                           <span className="text-[7px] font-mono text-zinc-500">{startTime}</span>
+                           <div className="w-px h-1 bg-slate-500" />
+                           <span className="text-[7px] font-mono text-slate-500">{startTime}</span>
                          </div>
                       )}
 
@@ -186,8 +186,8 @@ export const SchedulerVisualization = () => {
                         className="absolute flex flex-col items-center transition-all duration-300 pointer-events-none"
                         style={{ left: `${leftEnd}%` }}
                       >
-                        <div className={`w-px ${isLast ? 'h-3 bg-indigo-500' : 'h-1.5 bg-zinc-600/60'}`} />
-                        <span className={`text-[8px] font-mono font-black mt-0.5 drop-shadow-md ${isLast ? 'text-indigo-400 scale-110' : 'text-zinc-400'}`}>
+                        <div className={`w-px ${isLast ? 'h-3 bg-indigo-500' : 'h-1.5 bg-slate-400/60'}`} />
+                        <span className={`text-[8px] font-mono font-black mt-0.5 drop-shadow-md ${isLast ? 'text-indigo-300 scale-110' : 'text-slate-200'}`}>
                           {endTime}
                         </span>
                       </div>
@@ -207,8 +207,9 @@ export const SchedulerVisualization = () => {
           </div>
         </div>
        </div>
+      </div>
 
-       <div className="px-4 py-6 grid grid-cols-2 lg:grid-cols-4 w-full gap-4 shrink-0">
+       <div className="mt-auto px-8 py-4 bg-slate-900/80 border-t border-slate-800 grid grid-cols-2 lg:grid-cols-4 w-full gap-4 shrink-0">
           <StatBox 
             label="Avg Waiting Time" 
             value={`${stats.avgWaitTime.toFixed(1)}ms`} 
@@ -233,9 +234,6 @@ export const SchedulerVisualization = () => {
             color="text-rose-500" 
             desc="Number of processes completed per unit of time (scaled to seconds)."
           />
-       </div>
-
-       <div className="flex-1 bg-transparent shrink-0 min-h-8"></div>
        </div>
     </div>
   );

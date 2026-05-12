@@ -30,8 +30,8 @@ export const StateTransitionDiagram = () => {
         const hasProcesses = stageProcesses.length > 0;
 
         return (
-          <div key={state.id} className="flex flex-col items-center gap-1 p-1.5 rounded-lg bg-zinc-900/30 border border-white/5 relative overflow-hidden group min-h-[48px]">
-            <div className={`flex items-center gap-1 font-black text-[7px] uppercase tracking-widest ${state.color} z-10`}>
+          <div key={state.id} className="flex flex-col items-center gap-1 p-1.5 rounded-lg bg-zinc-900/30 border border-white/5 relative overflow-hidden group min-h-[48px] 2xl:min-h-[5rem] 2xl:p-3">
+            <div className={`flex items-center gap-1 font-black text-[7px] 2xl:text-[9px] uppercase tracking-widest ${state.color} z-10`}>
                 {state.icon}
                 {state.label}
             </div>
