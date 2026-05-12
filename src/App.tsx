@@ -133,14 +133,14 @@ export default function App() {
                 />
                 
                 <div className="flex-1 flex bg-[#0c0c0e] relative overflow-hidden">
-                  <div className="w-full max-w-[1700px] mx-auto flex overflow-hidden border-x border-zinc-800/20 bg-zinc-800/10 gap-px">
+                  <div className="w-full max-w-[1800px] mx-auto flex lg:grid lg:grid-cols-[1.2fr_2.5fr_1.2fr] overflow-hidden border-x border-zinc-800/20 bg-zinc-800/10 gap-px">
                   {/* Column 1: Input Zone (FixedWidth for reliability) */}
-                  <div className="w-[320px] shrink-0 flex flex-col gap-px bg-[#0c0c0e] border-r border-zinc-800/50 overflow-hidden">
+                  <div className="w-80 lg:w-full shrink-0 flex flex-col gap-px bg-[#0c0c0e] border-r border-zinc-800/50 overflow-hidden min-w-0">
                     <div className="flex-none p-3 border-b border-zinc-800/50">
                       <ProcessForm />
                     </div>
                     
-                    <div className="flex-1 overflow-hidden flex flex-col relative bg-[#0c0c0e]">
+                    <div className="flex-1 overflow-hidden flex flex-col relative bg-[#0c0c0e] min-w-0">
                       <div className="p-3 border-y border-zinc-800/50 flex items-center justify-between shrink-0 z-20">
                         <span className="text-[11px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                           <Layers size={14} className="text-zinc-500" /> PCB Registry
@@ -152,19 +152,19 @@ export default function App() {
                           View Archive
                         </button>
                       </div>
-                      <div className="flex-1 overflow-hidden relative flex flex-col">
+                      <div className="flex-1 overflow-hidden relative flex flex-col min-w-0">
                         <PCBTable />
                       </div>
                     </div>
                   </div>
 
                   {/* Column 2: Execution Zone (Flexible) */}
-                  <div className="flex-1 flex flex-col bg-[#0c0c0e] relative overflow-hidden min-w-0">
+                  <div className="flex-1 lg:w-full flex flex-col bg-[#0c0c0e] relative overflow-hidden min-w-0">
                      <SchedulerVisualization />
                   </div>
 
                   {/* Column 3: System State (320px) */}
-                  <div className="w-[340px] shrink-0 h-full min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col border-l border-zinc-800/50 bg-[#0c0c0e]">
+                  <div className="w-[340px] lg:w-full shrink-0 h-full min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col border-l border-zinc-800/50 bg-[#0c0c0e] min-w-0">
                      <div className="flex-none shrink-0 border-b border-zinc-800/50 z-10 transition-all duration-500">
                         <MemoryMap />
                      </div>

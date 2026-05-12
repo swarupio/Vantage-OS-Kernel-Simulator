@@ -52,28 +52,28 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
   };
 
   return (
-    <header className="h-16 border-b border-zinc-900 bg-zinc-950 flex items-center justify-between px-4 shrink-0 sticky top-0 z-50 shadow-2xl">
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          {onHome && (
-            <button 
-              onClick={onHome}
-              className="p-1 px-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors flex items-center justify-center mr-1"
-              title="Return to Landing"
-            >
-              <ArrowLeft size={14} />
-            </button>
-          )}
-          <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center shadow-lg shadow-indigo-900/20">
-            <Cpu className="text-white w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-[10px] font-black uppercase tracking-widest text-white leading-none">Vantage Kernel Sim</h1>
-          </div>
+    <header className="h-16 border-b border-zinc-900 bg-zinc-950 flex items-center justify-between px-6 shrink-0 sticky top-0 z-50 shadow-2xl w-full">
+      {/* Group 1: Logo & Branding */}
+      <div className="flex items-center gap-2 min-w-[200px]">
+        {onHome && (
+          <button 
+            onClick={onHome}
+            className="p-1 px-1.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors flex items-center justify-center mr-1"
+            title="Return to Landing"
+          >
+            <ArrowLeft size={14} />
+          </button>
+        )}
+        <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center shadow-lg shadow-indigo-900/20">
+          <Cpu className="text-white w-5 h-5" />
         </div>
+        <div>
+          <h1 className="text-[10px] font-black uppercase tracking-widest text-white leading-none">Vantage Kernel Sim</h1>
+        </div>
+      </div>
 
-        <div className="h-6 w-px bg-zinc-800/50" />
-
+      {/* Group 2: Core Controls (Center) */}
+      <div className="flex items-center justify-center gap-4 flex-1 border-x border-zinc-800/30 px-6">
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-start">
             <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1 ml-0.5">Scheduler</span>
@@ -103,61 +103,61 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
             </div>
           </div>
 
-            <div className="flex flex-col items-start px-2 py-0.5 rounded border border-emerald-900/30 bg-emerald-900/10 mb-0">
-              <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest leading-none mb-1 ml-0.5 whitespace-nowrap">Memory Allocator Map Strategy</span>
-              <div className="flex gap-px bg-zinc-900 p-0.5 rounded-md border border-zinc-800 h-7 flex-shrink-0 shadow-inner">
-                {(['FIRST_FIT', 'BEST_FIT', 'WORST_FIT'] as const).map(strat => (
-                  <Tooltip.Root key={strat}>
-                    <Tooltip.Trigger asChild>
-                      <button 
-                        onClick={() => { setMemoryStrategy(strat); }}
-                        className={`px-3 flex items-center h-full rounded text-[8px] font-black uppercase transition-all duration-200 ${
-                          memoryStrategy === strat 
-                          ? 'bg-emerald-600 text-white shadow-[0_0_8px_rgba(16,185,129,0.3)] border border-emerald-500/20' 
-                          : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                        }`}
-                      >
-                        {strat.replace('_', ' ')}
-                      </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content 
-                        className="bg-[#0c0c0e] border border-emerald-900 p-2.5 text-[9px] text-zinc-400 rounded-lg shadow-2xl z-[200] max-w-[200px] text-left leading-relaxed" 
-                        sideOffset={5}
-                      >
-                        <p className="font-black text-[10px] text-emerald-400 mb-1 tracking-wider whitespace-nowrap">
-                          {strat.replace('_', ' ')} ALLOCATION
-                        </p>
-                        {strat === 'FIRST_FIT' && "Allocates the very first free block that is large enough. It is fast but can scatter processes randomly."}
-                        {strat === 'BEST_FIT' && "Allocates the smallest free block that can hold the process. It saves large holes but creates tiny, unusable fragments."}
-                        {strat === 'WORST_FIT' && "Allocates the largest available free block. It leaves larger, more usable leftover spaces (holes)."}
-                        <p className="mt-2 text-[8px] text-emerald-500/70 italic inline-flex items-center gap-1">
-                          <Activity size={10} /> Watch the Physical Page Map
-                        </p>
-                        <Tooltip.Arrow className="fill-emerald-900/50" />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                ))}
-              </div>
+          <div className="flex flex-col items-start px-2 py-0.5 rounded border border-emerald-900/30 bg-emerald-900/10 h-10 justify-center">
+            <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest leading-none mb-1 ml-0.5 whitespace-nowrap">Memory Allocator Map Strategy</span>
+            <div className="flex gap-px bg-zinc-900 p-0.5 rounded-md border border-zinc-800 h-6 flex-shrink-0 shadow-inner">
+              {(['FIRST_FIT', 'BEST_FIT', 'WORST_FIT'] as const).map(strat => (
+                <Tooltip.Root key={strat}>
+                  <Tooltip.Trigger asChild>
+                    <button 
+                      onClick={() => { setMemoryStrategy(strat); }}
+                      className={`px-3 flex items-center h-full rounded text-[8px] font-black uppercase transition-all duration-200 ${
+                        memoryStrategy === strat 
+                        ? 'bg-emerald-600 text-white shadow-[0_0_8px_rgba(16,185,129,0.3)] border border-emerald-500/20' 
+                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                      }`}
+                    >
+                      {strat.replace('_', ' ')}
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content 
+                      className="bg-[#0c0c0e] border border-emerald-900 p-2.5 text-[9px] text-zinc-400 rounded-lg shadow-2xl z-[200] max-w-[200px] text-left leading-relaxed" 
+                      sideOffset={5}
+                    >
+                      <p className="font-black text-[10px] text-emerald-400 mb-1 tracking-wider whitespace-nowrap">
+                        {strat.replace('_', ' ')} ALLOCATION
+                      </p>
+                      {strat === 'FIRST_FIT' && "Allocates the very first free block that is large enough. It is fast but can scatter processes randomly."}
+                      {strat === 'BEST_FIT' && "Allocates the smallest free block that can hold the process. It saves large holes but creates tiny, unusable fragments."}
+                      {strat === 'WORST_FIT' && "Allocates the largest available free block. It leaves larger, more usable leftover spaces (holes)."}
+                      <p className="mt-2 text-[8px] text-emerald-500/70 italic inline-flex items-center gap-1">
+                        <Activity size={10} /> Watch the Physical Page Map
+                      </p>
+                      <Tooltip.Arrow className="fill-emerald-900/50" />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              ))}
             </div>
+          </div>
 
           {algorithm === 'RR' && (
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-start min-w-[70px]">
               <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1 ml-0.5">Quantum: <span className="text-indigo-400">{quantum}ms</span></span>
-              <div className="flex items-center bg-zinc-900 px-2 h-8 rounded-lg border border-zinc-800 shadow-inner">
+              <div className="flex items-center justify-center bg-zinc-900 px-2 h-8 rounded-lg border border-zinc-800 shadow-inner w-full">
                 <input 
                   type="range" min="1" max="20" step="1" 
                   value={quantum} 
                   onChange={(e) => setQuantum(parseInt(e.target.value))}
-                  className="w-16 accent-indigo-500 cursor-pointer h-1"
+                  className="w-full accent-indigo-500 cursor-pointer h-1"
                 />
               </div>
             </div>
           )}
         </div>
 
-        <div className="h-6 w-px bg-zinc-800/50" />
+        <div className="h-8 w-px bg-zinc-800/50 hidden lg:block mx-1" />
 
         <div className="flex items-center gap-2 h-10">
            <Tooltip.Root>
@@ -205,7 +205,7 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
              </Tooltip.Portal>
            </Tooltip.Root>
 
-           <div className="h-6 w-px bg-zinc-800/50 mx-1" />
+           <div className="h-6 w-px bg-zinc-800/50 mx-1 lg:hidden" />
 
            <div className="flex gap-1 h-8">
             <DropdownMenu.Root>
@@ -217,7 +217,7 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
                 </button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Portal>
-                <DropdownMenu.Content 
+                 <DropdownMenu.Content 
                   className="min-w-[280px] bg-zinc-900 border border-zinc-800 rounded-lg p-2 shadow-2xl z-[200] animate-in fade-in zoom-in duration-100"
                   sideOffset={5}
                 >
@@ -291,7 +291,8 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      {/* Group 3: Docs, Clock & Status (Right) */}
+      <div className="flex items-center gap-4 min-w-[200px] justify-end">
         <button 
           onClick={() => setShowGuide(!showGuide)}
           className={`flex items-center gap-2 px-3 h-8 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${showGuide ? 'bg-indigo-600 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300 border border-zinc-800'}`}
@@ -300,20 +301,19 @@ export const Header = ({ showGuide, setShowGuide, onHome }: HeaderProps) => {
           DOCS
         </button>
 
-        <div className="h-6 w-px bg-zinc-800/50" />
-        <div className="flex flex-col items-end h-8 justify-center min-w-[70px]">
-           <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1">Sys Clock</span>
-           <span className="text-[10px] font-mono font-bold text-indigo-400">{clock.toString().padStart(6, '0')}ms</span>
-        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-end h-8 justify-center min-w-[70px]">
+             <span className="text-[7px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1">Sys Clock</span>
+             <span className="text-[10px] font-mono font-bold text-indigo-400">{clock.toString().padStart(6, '0')}ms</span>
+          </div>
 
-        <div className="h-6 w-px bg-zinc-800/50" />
-
-        <div className="flex items-center">
-           <span className={`inline-flex items-center px-3 h-8 rounded border text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
-             useSimulationStore.getState().runningPid ? 'bg-indigo-900/20 border-indigo-500/50 text-indigo-400' : 'bg-zinc-900 border-zinc-800 text-zinc-500'
-           }`}>
-             CPU: {useSimulationStore.getState().runningPid ? useSimulationStore.getState().runningPid : 'IDLE'}
-           </span>
+          <div className="flex items-center">
+             <span className={`inline-flex items-center px-3 h-8 rounded border text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+               useSimulationStore.getState().runningPid ? 'bg-indigo-900/20 border-indigo-500/50 text-indigo-400' : 'bg-zinc-900 border-zinc-800 text-zinc-500'
+             }`}>
+               CPU: {useSimulationStore.getState().runningPid ? useSimulationStore.getState().runningPid : 'IDLE'}
+             </span>
+          </div>
         </div>
       </div>
     </header>
