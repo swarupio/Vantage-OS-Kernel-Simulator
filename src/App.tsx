@@ -132,8 +132,8 @@ export default function App() {
                   onHome={() => setPage('landing')}
                 />
                 
-                <div className="flex-1 flex bg-[#0c0c0e] relative overflow-hidden min-h-0">
-                  <div className="w-full h-full flex 2xl:grid 2xl:grid-cols-[1.2fr_2.5fr_1.2fr] overflow-hidden bg-zinc-800/10 gap-px min-h-0">
+                <div className="flex-1 flex items-center justify-center bg-[#020202] relative overflow-hidden min-h-0">
+                  <div className="w-full h-full xl:max-h-[85vh] 2xl:max-h-[900px] flex 2xl:grid 2xl:grid-cols-[1.2fr_2.5fr_1.2fr] overflow-hidden bg-zinc-800/10 gap-px min-h-0 border-y border-transparent xl:border-zinc-800/30 xl:rounded-xl xl:shadow-2xl">
                   {/* Column 1: Input Zone (FixedWidth for reliability) */}
                   <div className="w-[320px] 2xl:w-full shrink-0 flex flex-col gap-px bg-[#0c0c0e] border-r border-zinc-800/50 overflow-hidden min-w-0">
                     <div className="flex-none p-3 border-b border-zinc-800/50">

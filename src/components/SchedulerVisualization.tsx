@@ -88,7 +88,7 @@ export const SchedulerVisualization = () => {
              <ReadyQueueFlow />
           </div>
 
-          <div className="flex-1 flex flex-col mt-2 min-h-0 2xl:min-h-[350px]">
+          <div className="flex-1 flex flex-col mt-2 min-h-0">
             <div 
               ref={scrollContainerRef}
               className="flex-1 w-full flex flex-col bg-slate-950/20 px-2 pt-4 pb-2 rounded-xl border border-slate-800/50 relative overflow-x-auto overflow-y-hidden custom-scrollbar"
