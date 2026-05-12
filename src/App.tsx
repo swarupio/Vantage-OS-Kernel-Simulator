@@ -132,9 +132,10 @@ export default function App() {
                   onHome={() => setPage('landing')}
                 />
                 
-                <div className="flex-1 flex overflow-hidden p-0.5 gap-px bg-zinc-800/10 relative">
+                <div className="flex-1 flex bg-[#0c0c0e] relative overflow-hidden">
+                  <div className="w-full max-w-[1700px] mx-auto flex overflow-hidden border-x border-zinc-800/20 bg-zinc-800/10 gap-px">
                   {/* Column 1: Input Zone (FixedWidth for reliability) */}
-                  <div className="w-80 flex-none flex flex-col gap-px bg-[#0c0c0e] border-r border-zinc-800/50 overflow-hidden">
+                  <div className="w-[320px] shrink-0 flex flex-col gap-px bg-[#0c0c0e] border-r border-zinc-800/50 overflow-hidden">
                     <div className="flex-none p-3 border-b border-zinc-800/50">
                       <ProcessForm />
                     </div>
@@ -158,12 +159,12 @@ export default function App() {
                   </div>
 
                   {/* Column 2: Execution Zone (Flexible) */}
-                  <div className="flex-1 flex flex-col bg-[#0c0c0e] relative overflow-hidden">
+                  <div className="flex-1 flex flex-col bg-[#0c0c0e] relative overflow-hidden min-w-0">
                      <SchedulerVisualization />
                   </div>
 
                   {/* Column 3: System State (320px) */}
-                  <div className="w-[340px] flex-none h-full min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col border-l border-zinc-800/50 bg-[#0c0c0e]">
+                  <div className="w-[340px] shrink-0 h-full min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar flex flex-col border-l border-zinc-800/50 bg-[#0c0c0e]">
                      <div className="flex-none shrink-0 border-b border-zinc-800/50 z-10 transition-all duration-500">
                         <MemoryMap />
                      </div>
@@ -171,6 +172,7 @@ export default function App() {
                      <div className="flex-none shrink-0 min-h-min pb-8">
                         <FileSystemPanel />
                      </div>
+                  </div>
                   </div>
 
                   {/* Knowledge Base Sidebar */}

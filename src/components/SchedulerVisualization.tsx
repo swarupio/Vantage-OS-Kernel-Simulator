@@ -209,7 +209,7 @@ export const SchedulerVisualization = () => {
        </div>
       </div>
 
-       <div className="px-8 py-4 bg-slate-900/80 border-t border-slate-800 grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
+       <div className="px-8 py-4 bg-slate-900/80 border-t border-slate-800 grid grid-cols-2 lg:grid-cols-4 w-full gap-4 shrink-0">
           <StatBox 
             label="Avg Waiting Time" 
             value={`${stats.avgWaitTime.toFixed(1)}ms`} 
